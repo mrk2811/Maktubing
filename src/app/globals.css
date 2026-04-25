@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  --maktub-dark: #111b21;
+  --maktub-darker: #0b141a;
+  --maktub-panel: #202c33;
+  --maktub-input: #2a3942;
+  --maktub-green: #00a884;
+  --maktub-green-light: #25d366;
+  --maktub-green-dark: #008f6f;
+  --maktub-text: #e9edef;
+  --maktub-text-secondary: #8696a0;
+  --maktub-border: #2a3942;
+  --maktub-bubble-out: #005c4b;
+  --maktub-bubble-in: #202c33;
+  --maktub-gold: #d4a853;
+  --maktub-gold-light: #e8c876;
+
+  --background: var(--maktub-darker);
+  --foreground: var(--maktub-text);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-maktub-dark: var(--maktub-dark);
+  --color-maktub-darker: var(--maktub-darker);
+  --color-maktub-panel: var(--maktub-panel);
+  --color-maktub-input: var(--maktub-input);
+  --color-maktub-green: var(--maktub-green);
+  --color-maktub-green-light: var(--maktub-green-light);
+  --color-maktub-green-dark: var(--maktub-green-dark);
+  --color-maktub-text: var(--maktub-text);
+  --color-maktub-text-secondary: var(--maktub-text-secondary);
+  --color-maktub-border: var(--maktub-border);
+  --color-maktub-bubble-out: var(--maktub-bubble-out);
+  --color-maktub-bubble-in: var(--maktub-bubble-in);
+  --color-maktub-gold: var(--maktub-gold);
+  --color-maktub-gold-light: var(--maktub-gold-light);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--maktub-input) transparent;
+}
