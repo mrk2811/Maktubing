@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Profile } from "@/lib/types";
+import SaveButton from "@/components/SaveButton";
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
@@ -52,6 +53,7 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
               {profile.gender}
             </p>
           </div>
+          <SaveButton profileId={profile.id} size="sm" />
         </div>
 
         {/* Key details */}

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { mockProfiles } from "@/lib/mock-data";
 import Navbar from "@/components/Navbar";
+import SaveButton from "@/components/SaveButton";
 
 function Section({
   title,
@@ -83,7 +84,7 @@ export default async function ProfileDetailPage({
               <div className="w-20 h-20 rounded-full bg-maktub-green/20 flex items-center justify-center text-maktub-green font-bold text-2xl shrink-0">
                 {initials}
               </div>
-              <div>
+              <div className="flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-2xl font-bold text-maktub-text">
                     {profile.name}
@@ -113,6 +114,7 @@ export default async function ProfileDetailPage({
                   {profile.residence}
                 </p>
               </div>
+              <SaveButton profileId={profile.id} />
             </div>
           </div>
 

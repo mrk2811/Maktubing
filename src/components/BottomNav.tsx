@@ -61,7 +61,7 @@ export default function BottomNav() {
           <span className="text-[10px] font-medium -mt-1">Post</span>
         </Link>
 
-        <Link href="/profiles" className={linkClass("/saved")}>
+        <Link href="/saved" className={linkClass("/saved")}>
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
