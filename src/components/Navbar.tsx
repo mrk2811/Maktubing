@@ -24,7 +24,8 @@ export default function Navbar() {
             It is written
           </span>
         </Link>
-        <nav className="flex items-center gap-2">
+        {/* Desktop nav links - hidden on mobile (bottom nav used instead) */}
+        <nav className="hidden md:flex items-center gap-2">
           <Link href="/profiles" className={linkClass("/profiles")}>
             Browse
           </Link>
