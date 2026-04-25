@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --maktub-dark: #111b21;
-  --maktub-darker: #0b141a;
-  --maktub-panel: #202c33;
-  --maktub-input: #2a3942;
+  --maktub-dark: #1a3a2a;
+  --maktub-darker: #f5f0e8;
+  --maktub-panel: #ffffff;
+  --maktub-input: #f0ebe3;
   --maktub-green: #00a884;
   --maktub-green-light: #25d366;
   --maktub-green-dark: #008f6f;
-  --maktub-text: #e9edef;
-  --maktub-text-secondary: #8696a0;
-  --maktub-border: #2a3942;
-  --maktub-bubble-out: #005c4b;
-  --maktub-bubble-in: #202c33;
-  --maktub-gold: #d4a853;
-  --maktub-gold-light: #e8c876;
+  --maktub-text: #1a2e23;
+  --maktub-text-secondary: #5f7161;
+  --maktub-border: #d9d2c7;
+  --maktub-bubble-out: #d9fdd3;
+  --maktub-bubble-in: #ffffff;
+  --maktub-gold: #b8860b;
+  --maktub-gold-light: #d4a853;
 
   --background: var(--maktub-darker);
   --foreground: var(--maktub-text);
@@ -49,7 +49,7 @@ body {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--maktub-input) transparent;
+  scrollbar-color: var(--maktub-border) transparent;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -74,7 +74,7 @@ input {
 
 /* Improve select appearance on mobile */
 select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238696a0' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%235f7161' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 32px;

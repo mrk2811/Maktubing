@@ -14,7 +14,7 @@ export default function Navbar() {
     }`;
 
   return (
-    <header className="sticky top-0 z-50 bg-maktub-dark border-b border-maktub-border">
+    <header className="sticky top-0 z-50 bg-maktub-panel border-b border-maktub-border shadow-sm">
       <div className="max-w-5xl mx-auto flex items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2">
           <span className="text-2xl font-bold text-maktub-gold tracking-wide">

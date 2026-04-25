@@ -4,7 +4,7 @@ function CloudLeft() {
   return (
     <svg
       viewBox="0 0 200 120"
-      className="w-32 sm:w-40 md:w-48 text-white/20"
+      className="w-32 sm:w-40 md:w-48 text-maktub-green/20"
       fill="currentColor"
     >
       <path d="M170,90 Q170,110 150,110 L40,110 Q10,110 10,85 Q10,65 35,60 Q30,35 55,30 Q80,10 110,30 Q130,15 155,30 Q180,40 175,65 Q190,70 190,85 Q190,90 170,90 Z" />
@@ -16,7 +16,7 @@ function CloudRight() {
   return (
     <svg
       viewBox="0 0 200 120"
-      className="w-32 sm:w-40 md:w-48 text-white/20"
+      className="w-32 sm:w-40 md:w-48 text-maktub-green/20"
       fill="currentColor"
     >
       <path d="M30,90 Q30,110 50,110 L160,110 Q190,110 190,85 Q190,65 165,60 Q170,35 145,30 Q120,10 90,30 Q70,15 45,30 Q20,40 25,65 Q10,70 10,85 Q10,90 30,90 Z" />

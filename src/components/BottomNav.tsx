@@ -19,7 +19,7 @@ export default function BottomNav() {
     }`;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-maktub-dark border-t border-maktub-border md:hidden safe-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-maktub-panel border-t border-maktub-border shadow-[0_-2px_10px_rgba(0,0,0,0.05)] md:hidden safe-bottom">
       <div className="flex items-center justify-around">
         <Link href="/" className={linkClass("/")}>
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
