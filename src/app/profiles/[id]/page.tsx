@@ -8,6 +8,10 @@ import InterestButton from "@/components/InterestButton";
 import ShareButton from "@/components/ShareButton";
 import ReportButton from "@/components/ReportButton";
 
+export function generateStaticParams() {
+  return mockProfiles.map((p) => ({ id: p.id }));
+}
+
 function Section({
   title,
   children,
