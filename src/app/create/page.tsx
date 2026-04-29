@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import { useUserProfile } from "@/lib/useUserProfile";
+import { Profile } from "@/lib/types";
 
 interface FormData {
   name: string;
@@ -191,6 +193,7 @@ export default function CreateProfilePage() {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [submitted, setSubmitted] = useState(false);
+  const { saveProfile } = useUserProfile();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -200,6 +203,41 @@ export default function CreateProfilePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const profile: Profile = {
+      id: "current-user",
+      name: formData.name,
+      gender: formData.gender as "Male" | "Female",
+      age: parseInt(formData.age) || 0,
+      height: formData.height,
+      residence: formData.residence,
+      relocate: formData.relocate,
+      education: formData.education,
+      profession: formData.profession,
+      legalStatus: formData.legalStatus,
+      maritalStatus: formData.maritalStatus,
+      children: formData.children,
+      ethnicity: formData.ethnicity,
+      religiousSect: formData.religiousSect,
+      languages: formData.languages.split(",").map((l) => l.trim()).filter(Boolean),
+      lookingFor: {
+        ageRange: formData.lookingForAge,
+        height: formData.lookingForHeight,
+        ethnicity: formData.lookingForEthnicity,
+        residence: formData.lookingForResidence,
+        legalStatus: formData.lookingForLegalStatus,
+        maritalStatus: formData.lookingForMaritalStatus,
+        religiousSect: formData.lookingForReligiousSect,
+      },
+      comments: formData.comments,
+      aboutMe: formData.aboutMe,
+      contactName: formData.contactName,
+      contactPhone: formData.contactPhone,
+      createdAt: new Date().toISOString(),
+      verified: false,
+      phoneVerified: false,
+      adminVerified: false,
+    };
+    saveProfile(profile);
     setSubmitted(true);
     setTimeout(() => {
       router.push("/profiles");
