@@ -1,6 +1,7 @@
 "use client";
 
 import { useInterests } from "@/lib/useInterests";
+import { useNotifications } from "@/lib/useNotifications";
 
 const CURRENT_USER_ID = "current-user";
 
@@ -12,6 +13,7 @@ export default function InterestButton({
   size?: "sm" | "md";
 }) {
   const { sendInterest, getInterestStatus } = useInterests();
+  const { addNotification } = useNotifications();
   const status = getInterestStatus(CURRENT_USER_ID, profileId);
 
   const handleClick = (e: React.MouseEvent) => {
@@ -19,6 +21,11 @@ export default function InterestButton({
     e.stopPropagation();
     if (!status) {
       sendInterest(CURRENT_USER_ID, profileId);
+      addNotification({
+        type: "interest_received",
+        fromProfileId: CURRENT_USER_ID,
+        toProfileId: profileId,
+      });
     }
   };
 

@@ -3,6 +3,7 @@ import { Profile } from "@/lib/types";
 import SaveButton from "@/components/SaveButton";
 import VerifiedBadgeClient from "@/components/VerifiedBadgeClient";
 import InterestButton from "@/components/InterestButton";
+import ShareButton from "@/components/ShareButton";
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
@@ -44,7 +45,10 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
               {profile.gender}
             </p>
           </div>
-          <SaveButton profileId={profile.id} size="sm" />
+          <div className="flex items-center gap-1 shrink-0">
+            <ShareButton profileId={profile.id} profileName={profile.name} size="sm" />
+            <SaveButton profileId={profile.id} size="sm" />
+          </div>
         </div>
 
         {/* Key details */}

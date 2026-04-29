@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import NotificationBell from "@/components/NotificationBell";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -24,15 +25,18 @@ export default function Navbar() {
             It is written
           </span>
         </Link>
-        {/* Desktop nav links - hidden on mobile (bottom nav used instead) */}
-        <nav className="hidden md:flex items-center gap-2">
-          <Link href="/profiles" className={linkClass("/profiles")}>
-            Browse
-          </Link>
-          <Link href="/create" className={linkClass("/create")}>
-            Post Profile
-          </Link>
-        </nav>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          {/* Desktop nav links - hidden on mobile (bottom nav used instead) */}
+          <nav className="hidden md:flex items-center gap-2">
+            <Link href="/profiles" className={linkClass("/profiles")}>
+              Browse
+            </Link>
+            <Link href="/create" className={linkClass("/create")}>
+              Post Profile
+            </Link>
+          </nav>
+        </div>
       </div>
     </header>
   );
