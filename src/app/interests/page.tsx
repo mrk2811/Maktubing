@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { mockProfiles } from "@/lib/mock-data";
 import { useInterests } from "@/lib/useInterests";
+import { useNotifications } from "@/lib/useNotifications";
 
 const CURRENT_USER_ID = "current-user";
 
@@ -13,6 +14,31 @@ type Tab = "sent" | "received";
 export default function InterestsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("sent");
   const { sentInterests, receivedInterests, updateStatus } = useInterests();
+  const { addNotification } = useNotifications();
+
+  const handleAccept = useCallback(
+    (fromProfileId: string, toProfileId: string) => {
+      updateStatus(fromProfileId, toProfileId, "accepted");
+      addNotification({
+        type: "interest_accepted",
+        fromProfileId: toProfileId,
+        toProfileId: fromProfileId,
+      });
+    },
+    [updateStatus, addNotification]
+  );
+
+  const handleDecline = useCallback(
+    (fromProfileId: string, toProfileId: string) => {
+      updateStatus(fromProfileId, toProfileId, "declined");
+      addNotification({
+        type: "interest_declined",
+        fromProfileId: toProfileId,
+        toProfileId: fromProfileId,
+      });
+    },
+    [updateStatus, addNotification]
+  );
 
   const sent = sentInterests(CURRENT_USER_ID);
   const received = receivedInterests(CURRENT_USER_ID);
@@ -139,7 +165,7 @@ export default function InterestsPage() {
                       <div className="flex gap-2 shrink-0">
                         <button
                           onClick={() =>
-                            updateStatus(interest.fromProfileId, interest.toProfileId, "accepted")
+                            handleAccept(interest.fromProfileId, interest.toProfileId)
                           }
                           className="px-4 py-2 bg-maktub-green text-white text-sm font-medium rounded-lg hover:bg-maktub-green/90 transition-colors"
                         >
@@ -147,7 +173,7 @@ export default function InterestsPage() {
                         </button>
                         <button
                           onClick={() =>
-                            updateStatus(interest.fromProfileId, interest.toProfileId, "declined")
+                            handleDecline(interest.fromProfileId, interest.toProfileId)
                           }
                           className="px-4 py-2 bg-maktub-input text-maktub-text-secondary text-sm font-medium rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors border border-maktub-border"
                         >

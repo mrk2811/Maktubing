@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import SaveButton from "@/components/SaveButton";
 import VerificationBadges from "@/components/VerificationBadges";
 import InterestButton from "@/components/InterestButton";
+import ShareButton from "@/components/ShareButton";
 
 function Section({
   title,
@@ -106,7 +107,10 @@ export default async function ProfileDetailPage({
                 </p>
               </div>
               <div className="flex flex-col gap-2 items-end shrink-0">
-                <SaveButton profileId={profile.id} />
+                <div className="flex items-center gap-1">
+                  <ShareButton profileId={profile.id} profileName={profile.name} />
+                  <SaveButton profileId={profile.id} />
+                </div>
                 <InterestButton profileId={profile.id} />
               </div>
             </div>
