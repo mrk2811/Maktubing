@@ -74,10 +74,6 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
             <span className="text-maktub-text-secondary">Marital Status:</span>{" "}
             <span className="text-maktub-text">{profile.maritalStatus}</span>
           </div>
-          <div>
-            <span className="text-maktub-text-secondary">Legal Status:</span>{" "}
-            <span className="text-maktub-text">{profile.legalStatus}</span>
-          </div>
         </div>
 
         {/* Tags */}
