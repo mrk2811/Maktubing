@@ -228,10 +228,12 @@ export default function CreateProfilePage() {
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-maktub-text mb-2">
-              Profile Submitted!
+              Profile Live!
             </h2>
             <p className="text-maktub-text-secondary">
-              Your profile has been submitted and will be reviewed shortly.
+              Your profile is now live and visible to others.
+              <br />
+              Verify your phone to earn a trust badge.
               <br />
               Redirecting to profiles...
             </p>
