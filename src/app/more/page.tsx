@@ -54,6 +54,27 @@ export default function MorePage() {
 
         <div className="space-y-3">
           <MenuItem
+            href="/saved"
+            icon={
+              <svg
+                className="w-5 h-5 text-maktub-green"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                />
+              </svg>
+            }
+            title="Saved Profiles"
+            description="View profiles you've saved for later"
+          />
+
+          <MenuItem
             href="/verify"
             icon={
               <svg
