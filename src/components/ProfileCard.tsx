@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Profile } from "@/lib/types";
 import SaveButton from "@/components/SaveButton";
 import VerifiedBadgeClient from "@/components/VerifiedBadgeClient";
+import InterestButton from "@/components/InterestButton";
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
@@ -75,9 +76,12 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
           ))}
         </div>
 
-        {/* CTA hint */}
-        <div className="mt-4 text-xs text-maktub-green font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-          View full profile &rarr;
+        {/* Interest + CTA */}
+        <div className="mt-4 flex items-center justify-between">
+          <InterestButton profileId={profile.id} size="sm" />
+          <span className="text-xs text-maktub-green font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            View full profile &rarr;
+          </span>
         </div>
       </div>
     </Link>
