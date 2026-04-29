@@ -6,6 +6,7 @@ import SaveButton from "@/components/SaveButton";
 import VerificationBadges from "@/components/VerificationBadges";
 import InterestButton from "@/components/InterestButton";
 import ShareButton from "@/components/ShareButton";
+import ReportButton from "@/components/ReportButton";
 
 function Section({
   title,
@@ -200,15 +201,18 @@ export default async function ProfileDetailPage({
               </div>
             </Section>
 
-            {/* Posted date */}
-            <p className="text-xs text-maktub-text-secondary text-right mt-4">
-              Posted on{" "}
-              {new Date(profile.createdAt).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
+            {/* Footer: Posted date + Report */}
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-maktub-border/50">
+              <ReportButton profileId={profile.id} />
+              <p className="text-xs text-maktub-text-secondary">
+                Posted on{" "}
+                {new Date(profile.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </p>
+            </div>
           </div>
         </div>
       </main>
