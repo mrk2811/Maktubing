@@ -1,8 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import {
+  initRecaptcha,
+  sendCode,
+  verifyCode,
+  cleanupRecaptcha,
+} from "@/lib/phoneVerification";
 
 type Step = "phone" | "otp" | "success";
 
@@ -11,13 +17,44 @@ export default function VerifyPhonePage() {
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handlePhoneSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (phone.length >= 10) {
-      setStep("otp");
-    }
-  };
+  useEffect(() => {
+    initRecaptcha("send-code-btn");
+    return () => {
+      cleanupRecaptcha();
+    };
+  }, []);
+
+  const handlePhoneSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (phone.length < 10) return;
+
+      setError("");
+      setLoading(true);
+
+      try {
+        const formatted = phone.startsWith("+") ? phone : `+1${phone.replace(/\D/g, "")}`;
+        await sendCode(formatted);
+        setStep("otp");
+      } catch (err: unknown) {
+        const message =
+          err instanceof Error ? err.message : "Failed to send code";
+        if (message.includes("too-many-requests")) {
+          setError("Too many attempts. Please try again later.");
+        } else if (message.includes("invalid-phone-number")) {
+          setError("Invalid phone number. Please include country code (e.g. +1...)");
+        } else {
+          setError(message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [phone]
+  );
 
   const handleOtpChange = (index: number, value: string) => {
     if (value.length > 1) return;
@@ -41,16 +78,33 @@ export default function VerifyPhonePage() {
     }
   };
 
-  const handleOtpSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const code = otp.join("");
-    if (code.length === 6) {
-      setStep("success");
-      setTimeout(() => {
-        router.push("/profiles");
-      }, 2500);
-    }
-  };
+  const handleOtpSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      const code = otp.join("");
+      if (code.length !== 6) return;
+
+      setError("");
+      setLoading(true);
+
+      try {
+        const valid = await verifyCode(code);
+        if (valid) {
+          setStep("success");
+          setTimeout(() => {
+            router.push("/profiles");
+          }, 2500);
+        } else {
+          setError("Invalid code. Please try again.");
+        }
+      } catch {
+        setError("Verification failed. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [otp, router]
+  );
 
   return (
     <div className="flex flex-1 flex-col bg-maktub-darker">
@@ -78,33 +132,43 @@ export default function VerifyPhonePage() {
                 Verify Your Phone
               </h1>
               <p className="text-sm text-maktub-text-secondary mt-1">
-                We&apos;ll send a 6-digit code to verify your number
+                We&apos;ll send a 6-digit code via SMS to verify your number
               </p>
             </div>
 
             <form onSubmit={handlePhoneSubmit}>
-              <div className="flex flex-col gap-2 mb-6">
+              <div className="flex flex-col gap-2 mb-4">
                 <label
                   htmlFor="phone"
                   className="text-sm font-medium text-maktub-text-secondary"
                 >
-                  Phone Number
+                  Phone Number (with country code)
                 </label>
                 <input
                   id="phone"
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="e.g. 347-341-0176"
+                  placeholder="e.g. +1 347-341-0176"
                   className="bg-maktub-input text-maktub-text rounded-lg px-4 py-3 border border-maktub-border focus:border-maktub-green focus:outline-none placeholder:text-maktub-text-secondary/50 text-sm"
                   required
                 />
+                <p className="text-xs text-maktub-text-secondary">
+                  Include your country code (e.g. +1 for US, +44 for UK, +92 for Pakistan)
+                </p>
               </div>
+
+              {error && (
+                <p className="text-sm text-red-500 mb-4">{error}</p>
+              )}
+
               <button
+                id="send-code-btn"
                 type="submit"
-                className="w-full bg-maktub-green text-white font-medium py-3 rounded-lg hover:bg-maktub-green/90 transition-colors"
+                disabled={loading || phone.length < 10}
+                className="w-full bg-maktub-green text-white font-medium py-3 rounded-lg hover:bg-maktub-green/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send Verification Code
+                {loading ? "Sending..." : "Send Verification Code"}
               </button>
             </form>
           </div>
@@ -137,7 +201,7 @@ export default function VerifyPhonePage() {
             </div>
 
             <form onSubmit={handleOtpSubmit}>
-              <div className="flex justify-center gap-2 mb-6">
+              <div className="flex justify-center gap-2 mb-4">
                 {otp.map((digit, index) => (
                   <input
                     key={index}
@@ -152,16 +216,25 @@ export default function VerifyPhonePage() {
                   />
                 ))}
               </div>
+
+              {error && (
+                <p className="text-sm text-red-500 mb-4 text-center">{error}</p>
+              )}
+
               <button
                 type="submit"
-                disabled={otp.join("").length !== 6}
+                disabled={loading || otp.join("").length !== 6}
                 className="w-full bg-maktub-green text-white font-medium py-3 rounded-lg hover:bg-maktub-green/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Verify
+                {loading ? "Verifying..." : "Verify"}
               </button>
               <button
                 type="button"
-                onClick={() => setStep("phone")}
+                onClick={() => {
+                  setStep("phone");
+                  setOtp(["", "", "", "", "", ""]);
+                  setError("");
+                }}
                 className="w-full mt-3 text-sm text-maktub-text-secondary hover:text-maktub-text transition-colors"
               >
                 Change phone number
