@@ -73,7 +73,7 @@ export default function BottomNav() {
           <span className="text-[10px] font-medium">Saved</span>
         </Link>
 
-        <Link href="/" className={linkClass("/more")}>
+        <Link href="/more" className={linkClass("/more")}>
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"

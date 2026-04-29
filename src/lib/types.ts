@@ -21,6 +21,8 @@ export interface Profile {
   contactPhone: string;
   createdAt: string;
   verified: boolean;
+  phoneVerified: boolean;
+  adminVerified: boolean;
 }
 
 export interface LookingFor {

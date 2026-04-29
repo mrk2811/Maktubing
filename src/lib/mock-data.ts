@@ -36,6 +36,8 @@ export const mockProfiles: Profile[] = [
     contactPhone: "347-341-0176",
     createdAt: "2025-04-20",
     verified: true,
+    phoneVerified: true,
+    adminVerified: true,
   },
   {
     id: "2",
@@ -70,6 +72,8 @@ export const mockProfiles: Profile[] = [
     contactPhone: "312-555-0199",
     createdAt: "2025-04-18",
     verified: true,
+    phoneVerified: true,
+    adminVerified: true,
   },
   {
     id: "3",
@@ -105,6 +109,8 @@ export const mockProfiles: Profile[] = [
     contactPhone: "832-555-0177",
     createdAt: "2025-04-15",
     verified: false,
+    phoneVerified: true,
+    adminVerified: false,
   },
   {
     id: "4",
@@ -139,6 +145,8 @@ export const mockProfiles: Profile[] = [
     contactPhone: "469-555-0188",
     createdAt: "2025-04-12",
     verified: true,
+    phoneVerified: true,
+    adminVerified: true,
   },
   {
     id: "5",
@@ -173,6 +181,8 @@ export const mockProfiles: Profile[] = [
     contactPhone: "201-555-0166",
     createdAt: "2025-04-10",
     verified: true,
+    phoneVerified: true,
+    adminVerified: true,
   },
   {
     id: "6",
@@ -207,5 +217,7 @@ export const mockProfiles: Profile[] = [
     contactPhone: "310-555-0144",
     createdAt: "2025-04-08",
     verified: true,
+    phoneVerified: true,
+    adminVerified: true,
   },
 ];
