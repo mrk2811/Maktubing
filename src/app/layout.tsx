@@ -17,10 +17,20 @@ export const metadata: Metadata = {
   title: "Maktub - It Is Written",
   description:
     "A trust-based matrimony platform for Muslim families. Structured profiles, easy browsing, and meaningful connections.",
+  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Maktub",
+  },
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   formatDetection: {
     telephone: true,
@@ -32,7 +42,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#f5f0e8",
+  themeColor: "#2d6a4f",
   viewportFit: "cover",
 };
 
