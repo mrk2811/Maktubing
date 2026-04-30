@@ -21,7 +21,7 @@ function Section({
 }) {
   return (
     <div className="mb-6">
-      <h3 className="text-xs font-semibold uppercase tracking-wider text-maktub-green mb-3">
+      <h3 className="text-sm font-semibold uppercase tracking-wider text-maktub-green mb-3">
         {title}
       </h3>
       {children}
@@ -32,10 +32,10 @@ function Section({
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-start gap-1 py-2 border-b border-maktub-border/50 last:border-0">
-      <span className="text-maktub-text-secondary text-sm sm:w-40 shrink-0">
+      <span className="text-maktub-text-secondary text-base sm:w-40 shrink-0">
         {label}
       </span>
-      <span className="text-maktub-text text-sm">{value}</span>
+      <span className="text-maktub-text text-base font-medium">{value}</span>
     </div>
   );
 }
@@ -66,7 +66,7 @@ export default async function ProfileDetailPage({
         {/* Back button */}
         <Link
           href="/profiles"
-          className="inline-flex items-center gap-2 text-sm text-maktub-text-secondary hover:text-maktub-text mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-base text-maktub-text-secondary hover:text-maktub-text mb-6 transition-colors"
         >
           <svg
             className="w-4 h-4"
@@ -103,11 +103,7 @@ export default async function ProfileDetailPage({
                   phoneVerified={profile.phoneVerified}
                   defaultAdminVerified={profile.adminVerified}
                 />
-                <p className="text-maktub-text-secondary mt-1">
-                  {profile.age} years old &middot; {profile.height} &middot;{" "}
-                  {profile.gender}
-                </p>
-                <p className="text-maktub-text-secondary text-sm mt-0.5">
+                <p className="text-maktub-text-secondary text-base mt-1">
                   {profile.residence}
                 </p>
               </div>
@@ -124,6 +120,9 @@ export default async function ProfileDetailPage({
           <div className="px-6 py-6">
             {/* Personal Information */}
             <Section title="Personal Information">
+              <InfoRow label="Age" value={`${profile.age} years old`} />
+              <InfoRow label="Gender" value={profile.gender} />
+              <InfoRow label="Height" value={profile.height} />
               <InfoRow label="Education" value={profile.education} />
               <InfoRow label="Profession" value={profile.profession} />
               <InfoRow label="Legal Status" value={profile.legalStatus} />
@@ -140,7 +139,7 @@ export default async function ProfileDetailPage({
 
             {/* About Me */}
             <Section title="About Me">
-              <p className="text-sm text-maktub-text leading-relaxed bg-maktub-bubble-in rounded-xl p-4">
+              <p className="text-base text-maktub-text leading-relaxed bg-maktub-bubble-in rounded-xl p-4">
                 {profile.aboutMe}
               </p>
             </Section>
@@ -175,7 +174,7 @@ export default async function ProfileDetailPage({
 
             {/* Comments */}
             <Section title="Comments">
-              <p className="text-sm text-maktub-text leading-relaxed bg-maktub-bubble-in rounded-xl p-4">
+              <p className="text-base text-maktub-text leading-relaxed bg-maktub-bubble-in rounded-xl p-4">
                 {profile.comments}
               </p>
             </Section>
@@ -184,7 +183,7 @@ export default async function ProfileDetailPage({
             <Section title="Contact Information">
               <div className="bg-maktub-bubble-out/20 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm text-maktub-text-secondary">
+                  <p className="text-base text-maktub-text-secondary">
                     Contact: {profile.contactName}
                   </p>
                   <p className="text-lg font-semibold text-maktub-text">
@@ -208,7 +207,7 @@ export default async function ProfileDetailPage({
             {/* Footer: Posted date + Report */}
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-maktub-border/50">
               <ReportButton profileId={profile.id} />
-              <p className="text-xs text-maktub-text-secondary">
+              <p className="text-sm text-maktub-text-secondary">
                 Posted on{" "}
                 {new Date(profile.createdAt).toLocaleDateString("en-US", {
                   year: "numeric",

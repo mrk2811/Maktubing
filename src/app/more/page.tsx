@@ -21,8 +21,8 @@ function MenuItem({
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className="font-medium text-maktub-text text-sm">{title}</h3>
-        <p className="text-xs text-maktub-text-secondary mt-0.5">
+        <h3 className="font-medium text-maktub-text text-base">{title}</h3>
+        <p className="text-sm text-maktub-text-secondary mt-0.5">
           {description}
         </p>
       </div>
