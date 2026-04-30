@@ -8,7 +8,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   const linkClass = (href: string) =>
-    `px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+    `px-4 py-2 rounded-full text-base font-medium transition-colors ${
       pathname === href
         ? "bg-maktub-green text-white"
         : "text-maktub-text-secondary hover:text-maktub-text hover:bg-maktub-input"
@@ -21,7 +21,7 @@ export default function Navbar() {
           <span className="text-2xl font-bold text-maktub-gold tracking-wide">
             Maktub
           </span>
-          <span className="hidden sm:inline text-xs text-maktub-text-secondary italic">
+          <span className="hidden sm:inline text-sm text-maktub-text-secondary italic">
             It is written
           </span>
         </Link>

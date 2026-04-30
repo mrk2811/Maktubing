@@ -21,13 +21,13 @@ function SelectField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-xs text-maktub-text-secondary font-medium">
+      <label className="text-sm text-maktub-text-secondary font-medium">
         {label}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-maktub-input text-maktub-text text-sm rounded-lg px-3 py-2 border border-maktub-border focus:border-maktub-green focus:outline-none appearance-none cursor-pointer"
+        className="bg-maktub-input text-maktub-text text-base rounded-lg px-3 py-2.5 border border-maktub-border focus:border-maktub-green focus:outline-none appearance-none cursor-pointer"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
@@ -53,13 +53,13 @@ export default function FilterBar({
   return (
     <div className="bg-maktub-panel rounded-2xl p-4 border border-maktub-border">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-maktub-text">
+        <h3 className="text-base font-semibold text-maktub-text">
           Filter Profiles
         </h3>
         {hasActiveFilters && (
           <button
             onClick={onReset}
-            className="text-xs text-maktub-green hover:underline"
+            className="text-sm text-maktub-green hover:underline"
           >
             Clear all
           </button>

@@ -7,7 +7,7 @@ import ShareButton from "@/components/ShareButton";
 
 function Badge({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-block bg-maktub-input text-maktub-text-secondary text-xs px-2 py-0.5 rounded-full">
+    <span className="inline-block bg-maktub-input text-maktub-text-secondary text-sm px-2.5 py-1 rounded-full">
       {children}
     </span>
   );
@@ -31,7 +31,7 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-lg font-semibold text-maktub-text truncate">
+              <h3 className="text-xl font-semibold text-maktub-text truncate">
                 {profile.name}
               </h3>
               <VerifiedBadgeClient
@@ -40,7 +40,7 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
                 defaultAdminVerified={profile.adminVerified}
               />
             </div>
-            <p className="text-maktub-text-secondary text-sm mt-0.5">
+            <p className="text-maktub-text-secondary text-base mt-0.5">
               {profile.age} yrs &middot; {profile.height} &middot;{" "}
               {profile.gender}
             </p>
@@ -52,7 +52,7 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
         </div>
 
         {/* Key details */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-base mb-4">
           <div>
             <span className="text-maktub-text-secondary">Residence:</span>{" "}
             <span className="text-maktub-text">{profile.residence}</span>
