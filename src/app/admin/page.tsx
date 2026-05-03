@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Navbar from "@/components/Navbar";
-import { mockProfiles } from "@/lib/mock-data";
+import { Profile } from "@/lib/types";
+import { fetchProfiles } from "@/lib/db";
 import { useAdminStore } from "@/lib/useAdminStore";
 import { useReports, Report, ReportReason } from "@/lib/useReports";
 
@@ -17,15 +18,24 @@ const REASON_LABELS: Record<ReportReason, string> = {
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("profiles");
-  const { verifiedMap, setVerified } = useAdminStore();
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const { setVerified } = useAdminStore();
   const { pendingReports, updateReportStatus } = useReports();
 
-  const profiles = useMemo(() => {
-    return mockProfiles.map((p) => ({
-      ...p,
-      adminVerified: verifiedMap[p.id] ?? p.adminVerified,
-    }));
-  }, [verifiedMap]);
+  useEffect(() => {
+    let ignore = false;
+    fetchProfiles().then((data) => {
+      if (!ignore) setProfiles(data);
+    });
+    return () => { ignore = true; };
+  }, []);
+
+  const handleVerify = useCallback(async (profileId: string) => {
+    await setVerified(profileId, true);
+    setProfiles((prev) =>
+      prev.map((p) => (p.id === profileId ? { ...p, adminVerified: true } : p))
+    );
+  }, [setVerified]);
 
   const pendingProfiles = profiles.filter((p) => !p.adminVerified);
   const verifiedProfiles = profiles.filter((p) => p.adminVerified);
@@ -108,7 +118,7 @@ export default function AdminDashboardPage() {
                     <AdminProfileCard
                       key={profile.id}
                       profile={profile}
-                      onVerify={() => setVerified(profile.id, true)}
+                      onVerify={() => handleVerify(profile.id)}
                     />
                   ))}
                 </div>
@@ -143,6 +153,7 @@ export default function AdminDashboardPage() {
                   <FlaggedReportCard
                     key={report.id}
                     report={report}
+                    profiles={profiles}
                     onDismiss={() => updateReportStatus(report.id, "dismissed")}
                     onRemove={() => updateReportStatus(report.id, "removed")}
                   />
@@ -180,14 +191,16 @@ export default function AdminDashboardPage() {
 
 function FlaggedReportCard({
   report,
+  profiles,
   onDismiss,
   onRemove,
 }: {
   report: Report;
+  profiles: Profile[];
   onDismiss: () => void;
   onRemove: () => void;
 }) {
-  const profile = mockProfiles.find((p) => p.id === report.profileId);
+  const profile = profiles.find((p) => p.id === report.profileId);
   const initials = profile
     ? profile.name
         .split(" ")

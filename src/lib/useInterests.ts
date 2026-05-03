@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useSyncExternalStore } from "react";
-
-const STORAGE_KEY = "maktub-interests";
+import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/lib/supabase";
 
 export interface Interest {
   fromProfileId: string;
@@ -11,72 +10,82 @@ export interface Interest {
   createdAt: string;
 }
 
-let listeners: Array<() => void> = [];
-
-function emitChange() {
-  for (const listener of listeners) {
-    listener();
-  }
+interface DbInterest {
+  id: string;
+  from_profile_id: string;
+  to_profile_id: string;
+  status: "pending" | "accepted" | "declined";
+  created_at: string;
 }
 
-function subscribe(listener: () => void) {
-  listeners = [...listeners, listener];
-  return () => {
-    listeners = listeners.filter((l) => l !== listener);
+function toInterest(row: DbInterest): Interest {
+  return {
+    fromProfileId: row.from_profile_id,
+    toProfileId: row.to_profile_id,
+    status: row.status,
+    createdAt: row.created_at,
   };
 }
 
-function getSnapshot(): string {
-  if (typeof window === "undefined") return "[]";
-  return localStorage.getItem(STORAGE_KEY) || "[]";
-}
-
-function getServerSnapshot(): string {
-  return "[]";
-}
-
-function getStoredInterests(): Interest[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+async function loadInterests(): Promise<Interest[]> {
+  const { data } = await supabase
+    .from("interests")
+    .select("*")
+    .order("created_at", { ascending: false });
+  return data ? (data as DbInterest[]).map(toInterest) : [];
 }
 
 export function useInterests() {
-  const raw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const interests: Interest[] = JSON.parse(raw);
+  const [interests, setInterests] = useState<Interest[]>([]);
 
-  const sendInterest = useCallback((fromProfileId: string, toProfileId: string) => {
-    const current = getStoredInterests();
-    const existing = current.find(
-      (i) => i.fromProfileId === fromProfileId && i.toProfileId === toProfileId
-    );
-    if (existing) return;
-
-    const newInterest: Interest = {
-      fromProfileId,
-      toProfileId,
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    };
-    const updated = [...current, newInterest];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    emitChange();
+  useEffect(() => {
+    let ignore = false;
+    loadInterests().then((data) => {
+      if (!ignore) setInterests(data);
+    });
+    return () => { ignore = true; };
   }, []);
 
+  const sendInterest = useCallback(
+    async (fromProfileId: string, toProfileId: string) => {
+      const { error } = await supabase.from("interests").insert({
+        from_profile_id: fromProfileId,
+        to_profile_id: toProfileId,
+        status: "pending",
+      });
+      if (!error) {
+        setInterests((prev) => [
+          {
+            fromProfileId,
+            toProfileId,
+            status: "pending",
+            createdAt: new Date().toISOString(),
+          },
+          ...prev,
+        ]);
+      }
+    },
+    []
+  );
+
   const updateStatus = useCallback(
-    (fromProfileId: string, toProfileId: string, status: "accepted" | "declined") => {
-      const current = getStoredInterests();
-      const updated = current.map((i) =>
-        i.fromProfileId === fromProfileId && i.toProfileId === toProfileId
-          ? { ...i, status }
-          : i
+    async (
+      fromProfileId: string,
+      toProfileId: string,
+      status: "accepted" | "declined"
+    ) => {
+      await supabase
+        .from("interests")
+        .update({ status })
+        .eq("from_profile_id", fromProfileId)
+        .eq("to_profile_id", toProfileId);
+      setInterests((prev) =>
+        prev.map((i) =>
+          i.fromProfileId === fromProfileId && i.toProfileId === toProfileId
+            ? { ...i, status }
+            : i
+        )
       );
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      emitChange();
     },
     []
   );
@@ -84,7 +93,8 @@ export function useInterests() {
   const getInterestStatus = useCallback(
     (fromProfileId: string, toProfileId: string) => {
       const found = interests.find(
-        (i) => i.fromProfileId === fromProfileId && i.toProfileId === toProfileId
+        (i) =>
+          i.fromProfileId === fromProfileId && i.toProfileId === toProfileId
       );
       return found?.status ?? null;
     },
@@ -92,14 +102,23 @@ export function useInterests() {
   );
 
   const sentInterests = useCallback(
-    (fromProfileId: string) => interests.filter((i) => i.fromProfileId === fromProfileId),
+    (fromProfileId: string) =>
+      interests.filter((i) => i.fromProfileId === fromProfileId),
     [interests]
   );
 
   const receivedInterests = useCallback(
-    (toProfileId: string) => interests.filter((i) => i.toProfileId === toProfileId),
+    (toProfileId: string) =>
+      interests.filter((i) => i.toProfileId === toProfileId),
     [interests]
   );
 
-  return { interests, sendInterest, updateStatus, getInterestStatus, sentInterests, receivedInterests };
+  return {
+    interests,
+    sendInterest,
+    updateStatus,
+    getInterestStatus,
+    sentInterests,
+    receivedInterests,
+  };
 }

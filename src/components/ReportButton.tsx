@@ -21,9 +21,9 @@ export default function ReportButton({ profileId }: { profileId: string }) {
 
   const alreadyReported = hasReported(profileId, CURRENT_USER_ID);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedReason) return;
-    const success = submitReport({
+    const success = await submitReport({
       profileId,
       reporterId: CURRENT_USER_ID,
       reason: selectedReason,

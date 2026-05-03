@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import ProfileCard from "@/components/ProfileCard";
 import FilterBar from "@/components/FilterBar";
-import { mockProfiles } from "@/lib/mock-data";
-import { FilterOptions } from "@/lib/types";
+import { Profile, FilterOptions } from "@/lib/types";
 import { useSavedFilters } from "@/lib/useSavedFilters";
+import { fetchProfiles } from "@/lib/db";
 
 const emptyFilters: FilterOptions = {
   gender: "",
@@ -23,45 +23,18 @@ export default function ProfilesPage() {
   const [filters, setFilters] = useState<FilterOptions>(emptyFilters);
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
   const { savedFilters, saveFilter, deleteFilter } = useSavedFilters();
 
-  const filteredProfiles = useMemo(() => {
-    return mockProfiles.filter((p) => {
-      if (filters.gender && p.gender !== filters.gender) return false;
-      if (filters.ageMin && p.age < parseInt(filters.ageMin)) return false;
-      if (filters.ageMax && p.age > parseInt(filters.ageMax)) return false;
-      if (
-        filters.ethnicity &&
-        !p.ethnicity.toLowerCase().includes(filters.ethnicity.toLowerCase())
-      )
-        return false;
-      if (
-        filters.religiousSect &&
-        p.religiousSect.toLowerCase() !== filters.religiousSect.toLowerCase()
-      )
-        return false;
-      if (
-        filters.maritalStatus &&
-        !p.maritalStatus
-          .toLowerCase()
-          .includes(filters.maritalStatus.toLowerCase())
-      )
-        return false;
-      if (
-        filters.legalStatus &&
-        !p.legalStatus
-          .toLowerCase()
-          .includes(filters.legalStatus.toLowerCase())
-      )
-        return false;
-      if (
-        filters.residence &&
-        !p.residence.toLowerCase().includes(filters.residence.toLowerCase())
-      )
-        return false;
-      return true;
+  useEffect(() => {
+    let ignore = false;
+    fetchProfiles(filters).then((data) => {
+      if (!ignore) setProfiles(data);
     });
+    return () => { ignore = true; };
   }, [filters]);
+
+  const filteredProfiles = profiles;
 
   const activeFilterCount = Object.values(filters).filter(
     (v) => v !== ""

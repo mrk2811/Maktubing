@@ -1,18 +1,26 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import ProfileCard from "@/components/ProfileCard";
-import { mockProfiles } from "@/lib/mock-data";
+import { Profile } from "@/lib/types";
+import { fetchProfiles } from "@/lib/db";
 import { useSavedProfiles } from "@/lib/useSavedProfiles";
 
 export default function SavedPage() {
   const { savedIds } = useSavedProfiles();
+  const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
+
+  useEffect(() => {
+    let ignore = false;
+    fetchProfiles().then((data) => { if (!ignore) setAllProfiles(data); });
+    return () => { ignore = true; };
+  }, []);
 
   const savedProfiles = useMemo(
-    () => mockProfiles.filter((p) => savedIds.includes(p.id)),
-    [savedIds]
+    () => allProfiles.filter((p) => savedIds.includes(p.id)),
+    [savedIds, allProfiles]
   );
 
   return (
