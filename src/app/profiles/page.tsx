@@ -74,14 +74,14 @@ export default function ProfilesPage() {
             <h1 className="text-2xl font-bold text-maktub-text">
               Browse Profiles
             </h1>
-            <p className="text-sm text-maktub-text-secondary mt-1">
+            <p className="text-base text-maktub-text-secondary mt-1">
               {filteredProfiles.length} profile
               {filteredProfiles.length !== 1 ? "s" : ""} available
             </p>
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-maktub-panel border border-maktub-border text-sm font-medium text-maktub-text hover:border-maktub-green transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-maktub-panel border border-maktub-border text-base font-medium text-maktub-text hover:border-maktub-green transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
