@@ -79,3 +79,42 @@ select {
   background-position: right 12px center;
   padding-right: 32px;
 }
+
+/* Dual-handle range slider */
+.range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: all;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--maktub-green);
+  border: 3px solid white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.range-slider::-moz-range-thumb {
+  pointer-events: all;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--maktub-green);
+  border: 3px solid white;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.range-slider::-webkit-slider-runnable-track {
+  background: transparent;
+}
+
+.range-slider::-moz-range-track {
+  background: transparent;
+}
