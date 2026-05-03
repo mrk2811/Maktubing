@@ -6,6 +6,7 @@ import ProfileCard from "@/components/ProfileCard";
 import FilterBar from "@/components/FilterBar";
 import { mockProfiles } from "@/lib/mock-data";
 import { FilterOptions } from "@/lib/types";
+import { useSavedFilters } from "@/lib/useSavedFilters";
 
 const emptyFilters: FilterOptions = {
   gender: "",
@@ -21,6 +22,8 @@ const emptyFilters: FilterOptions = {
 export default function ProfilesPage() {
   const [filters, setFilters] = useState<FilterOptions>(emptyFilters);
   const [showFilters, setShowFilters] = useState(false);
+  const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
+  const { savedFilters, saveFilter, deleteFilter } = useSavedFilters();
 
   const filteredProfiles = useMemo(() => {
     return mockProfiles.filter((p) => {
@@ -100,13 +103,64 @@ export default function ProfilesPage() {
           </button>
         </div>
 
+        {/* Saved Filter Pills */}
+        {savedFilters.length > 0 && (
+          <div className="mb-4 flex flex-wrap gap-2">
+            {savedFilters.map((sf) => (
+              <div key={sf.id} className="flex items-center gap-1">
+                <button
+                  onClick={() => {
+                    if (activeFilterId === sf.id) {
+                      setFilters(emptyFilters);
+                      setActiveFilterId(null);
+                    } else {
+                      setFilters(sf.filters);
+                      setActiveFilterId(sf.id);
+                      setShowFilters(false);
+                    }
+                  }}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                    activeFilterId === sf.id
+                      ? "bg-maktub-green text-white shadow-sm"
+                      : "bg-maktub-panel text-maktub-text border border-maktub-border hover:border-maktub-green/50"
+                  }`}
+                >
+                  {sf.name}
+                </button>
+                <button
+                  onClick={() => {
+                    deleteFilter(sf.id);
+                    if (activeFilterId === sf.id) {
+                      setFilters(emptyFilters);
+                      setActiveFilterId(null);
+                    }
+                  }}
+                  className="w-5 h-5 flex items-center justify-center rounded-full text-maktub-text-secondary hover:bg-maktub-input hover:text-red-500 transition-colors"
+                  aria-label={`Delete saved filter ${sf.name}`}
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Filters */}
         {showFilters && (
           <div className="mb-6">
             <FilterBar
               filters={filters}
-              onFilterChange={setFilters}
-              onReset={() => setFilters(emptyFilters)}
+              onFilterChange={(f) => {
+                setFilters(f);
+                setActiveFilterId(null);
+              }}
+              onReset={() => {
+                setFilters(emptyFilters);
+                setActiveFilterId(null);
+              }}
+              onSave={(name) => saveFilter(name, filters)}
             />
           </div>
         )}
