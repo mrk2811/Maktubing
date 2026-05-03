@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback } from "react";
+import { useState, useCallback } from "react";
 import { FilterOptions } from "@/lib/types";
 
 interface FilterBarProps {
   filters: FilterOptions;
   onFilterChange: (filters: FilterOptions) => void;
   onReset: () => void;
+  onSave?: (name: string) => void;
 }
 
 function RadioGroup({
@@ -160,7 +161,10 @@ export default function FilterBar({
   filters,
   onFilterChange,
   onReset,
+  onSave,
 }: FilterBarProps) {
+  const [showSaveInput, setShowSaveInput] = useState(false);
+  const [saveName, setSaveName] = useState("");
   const update = (key: keyof FilterOptions, value: string) => {
     onFilterChange({ ...filters, [key]: value });
   };
@@ -286,6 +290,65 @@ export default function FilterBar({
             ]}
           />
         </div>
+
+        {/* Save this search */}
+        {hasActiveFilters && onSave && (
+          <div className="pt-4 border-t border-maktub-border/50">
+            {showSaveInput ? (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={saveName}
+                  onChange={(e) => setSaveName(e.target.value)}
+                  placeholder="Name this search..."
+                  className="flex-1 bg-maktub-input text-maktub-text text-sm rounded-lg px-3 py-2 border border-maktub-border focus:border-maktub-green focus:outline-none"
+                  autoFocus
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && saveName.trim()) {
+                      onSave(saveName.trim());
+                      setSaveName("");
+                      setShowSaveInput(false);
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (saveName.trim()) {
+                      onSave(saveName.trim());
+                      setSaveName("");
+                      setShowSaveInput(false);
+                    }
+                  }}
+                  className="px-4 py-2 rounded-lg bg-maktub-green text-white text-sm font-medium hover:bg-maktub-green-dark transition-colors"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSaveInput(false);
+                    setSaveName("");
+                  }}
+                  className="px-3 py-2 rounded-lg text-maktub-text-secondary text-sm hover:bg-maktub-input transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowSaveInput(true)}
+                className="flex items-center gap-2 text-sm text-maktub-green font-medium hover:underline"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+                Save this search
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
