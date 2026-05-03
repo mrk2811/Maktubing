@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { mockProfiles } from "@/lib/mock-data";
+import { Profile } from "@/lib/types";
+import { fetchProfiles } from "@/lib/db";
 import { useInterests } from "@/lib/useInterests";
 import { useNotifications } from "@/lib/useNotifications";
 
@@ -13,8 +14,15 @@ type Tab = "sent" | "received";
 
 export default function InterestsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("sent");
+  const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
   const { sentInterests, receivedInterests, updateStatus } = useInterests();
   const { addNotification } = useNotifications();
+
+  useEffect(() => {
+    let ignore = false;
+    fetchProfiles().then((data) => { if (!ignore) setAllProfiles(data); });
+    return () => { ignore = true; };
+  }, []);
 
   const handleAccept = useCallback(
     (fromProfileId: string, toProfileId: string) => {
@@ -47,18 +55,18 @@ export default function InterestsPage() {
     () =>
       sent.map((interest) => ({
         interest,
-        profile: mockProfiles.find((p) => p.id === interest.toProfileId),
+        profile: allProfiles.find((p) => p.id === interest.toProfileId),
       })).filter((item) => item.profile),
-    [sent]
+    [sent, allProfiles]
   );
 
   const receivedProfiles = useMemo(
     () =>
       received.map((interest) => ({
         interest,
-        profile: mockProfiles.find((p) => p.id === interest.fromProfileId),
+        profile: allProfiles.find((p) => p.id === interest.fromProfileId),
       })).filter((item) => item.profile),
-    [received]
+    [received, allProfiles]
   );
 
   return (

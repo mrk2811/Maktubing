@@ -1,13 +1,21 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
-import { mockProfiles } from "@/lib/mock-data";
+import { Profile } from "@/lib/types";
+import { fetchProfiles } from "@/lib/db";
 import { useNotifications, Notification } from "@/lib/useNotifications";
 
 export default function NotificationsPage() {
   const { notifications, markAllRead } = useNotifications();
+  const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
+
+  useEffect(() => {
+    let ignore = false;
+    fetchProfiles().then((data) => { if (!ignore) setAllProfiles(data); });
+    return () => { ignore = true; };
+  }, []);
 
   useEffect(() => {
     if (notifications.some((n) => !n.read)) {
@@ -32,6 +40,7 @@ export default function NotificationsPage() {
               <NotificationItem
                 key={notification.id}
                 notification={notification}
+                allProfiles={allProfiles}
               />
             ))}
           </div>
@@ -63,8 +72,8 @@ export default function NotificationsPage() {
   );
 }
 
-function NotificationItem({ notification }: { notification: Notification }) {
-  const profile = mockProfiles.find(
+function NotificationItem({ notification, allProfiles }: { notification: Notification; allProfiles: Profile[] }) {
+  const profile = allProfiles.find(
     (p) =>
       p.id === notification.fromProfileId || p.id === notification.toProfileId
   );

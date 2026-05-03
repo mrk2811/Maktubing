@@ -1,63 +1,44 @@
 "use client";
 
-import { useEffect, useCallback, useSyncExternalStore } from "react";
-
-const STORAGE_KEY = "maktub-saved-profiles";
-
-function getStoredIds(): string[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-let listeners: Array<() => void> = [];
-
-function emitChange() {
-  for (const listener of listeners) {
-    listener();
-  }
-}
-
-function subscribe(listener: () => void) {
-  listeners = [...listeners, listener];
-  return () => {
-    listeners = listeners.filter((l) => l !== listener);
-  };
-}
-
-function getSnapshot(): string {
-  if (typeof window === "undefined") return "[]";
-  return localStorage.getItem(STORAGE_KEY) || "[]";
-}
-
-function getServerSnapshot(): string {
-  return "[]";
-}
+import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/lib/supabase";
+import { getDeviceId } from "@/lib/db";
 
 export function useSavedProfiles() {
-  const raw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const savedIds: string[] = JSON.parse(raw);
+  const [savedIds, setSavedIds] = useState<string[]>([]);
 
   useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY) emitChange();
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    let ignore = false;
+    const userId = getDeviceId();
+    supabase
+      .from("saved_profiles")
+      .select("profile_id")
+      .eq("user_id", userId)
+      .then(({ data }) => {
+        if (!ignore && data) setSavedIds(data.map((r) => r.profile_id));
+      });
+    return () => { ignore = true; };
   }, []);
 
-  const toggleSave = useCallback((id: string) => {
-    const current = getStoredIds();
-    const next = current.includes(id)
-      ? current.filter((x) => x !== id)
-      : [...current, id];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    emitChange();
-  }, []);
+  const toggleSave = useCallback(
+    async (id: string) => {
+      const userId = getDeviceId();
+      if (savedIds.includes(id)) {
+        await supabase
+          .from("saved_profiles")
+          .delete()
+          .eq("user_id", userId)
+          .eq("profile_id", id);
+        setSavedIds((prev) => prev.filter((x) => x !== id));
+      } else {
+        await supabase
+          .from("saved_profiles")
+          .insert({ user_id: userId, profile_id: id });
+        setSavedIds((prev) => [...prev, id]);
+      }
+    },
+    [savedIds]
+  );
 
   const isSaved = useCallback(
     (id: string) => savedIds.includes(id),

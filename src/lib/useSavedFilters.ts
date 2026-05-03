@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useCallback, useSyncExternalStore } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FilterOptions } from "@/lib/types";
+import { supabase } from "@/lib/supabase";
+import { getDeviceId } from "@/lib/db";
 
 export interface SavedFilter {
   id: string;
@@ -10,71 +12,55 @@ export interface SavedFilter {
   createdAt: string;
 }
 
-const STORAGE_KEY = "maktub-saved-filters";
-
-function getStoredFilters(): SavedFilter[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+interface DbSavedFilter {
+  id: string;
+  user_id: string;
+  name: string;
+  filters: FilterOptions;
+  created_at: string;
 }
 
-let listeners: Array<() => void> = [];
-
-function emitChange() {
-  for (const listener of listeners) {
-    listener();
-  }
-}
-
-function subscribe(listener: () => void) {
-  listeners = [...listeners, listener];
-  return () => {
-    listeners = listeners.filter((l) => l !== listener);
+function toSavedFilter(row: DbSavedFilter): SavedFilter {
+  return {
+    id: row.id,
+    name: row.name,
+    filters: row.filters,
+    createdAt: row.created_at,
   };
 }
 
-function getSnapshot(): string {
-  if (typeof window === "undefined") return "[]";
-  return localStorage.getItem(STORAGE_KEY) || "[]";
-}
-
-function getServerSnapshot(): string {
-  return "[]";
-}
-
 export function useSavedFilters() {
-  const raw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const savedFilters: SavedFilter[] = JSON.parse(raw);
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
 
   useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY) emitChange();
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    let ignore = false;
+    const userId = getDeviceId();
+    supabase
+      .from("saved_filters")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (!ignore && data) setSavedFilters((data as DbSavedFilter[]).map(toSavedFilter));
+      });
+    return () => { ignore = true; };
   }, []);
 
-  const saveFilter = useCallback((name: string, filters: FilterOptions) => {
-    const current = getStoredFilters();
-    const newFilter: SavedFilter = {
-      id: Date.now().toString(),
-      name,
-      filters,
-      createdAt: new Date().toISOString(),
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([...current, newFilter]));
-    emitChange();
+  const saveFilter = useCallback(async (name: string, filters: FilterOptions) => {
+    const userId = getDeviceId();
+    const { data } = await supabase
+      .from("saved_filters")
+      .insert({ user_id: userId, name, filters })
+      .select()
+      .single();
+    if (data) {
+      setSavedFilters((prev) => [toSavedFilter(data as DbSavedFilter), ...prev]);
+    }
   }, []);
 
-  const deleteFilter = useCallback((id: string) => {
-    const current = getStoredFilters();
-    const next = current.filter((f) => f.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    emitChange();
+  const deleteFilter = useCallback(async (id: string) => {
+    await supabase.from("saved_filters").delete().eq("id", id);
+    setSavedFilters((prev) => prev.filter((f) => f.id !== id));
   }, []);
 
   return { savedFilters, saveFilter, deleteFilter };

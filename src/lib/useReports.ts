@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useSyncExternalStore } from "react";
-
-const STORAGE_KEY = "maktub-reports";
+import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/lib/supabase";
 
 export type ReportReason =
   | "fake_profile"
@@ -20,71 +19,81 @@ export interface Report {
   createdAt: string;
 }
 
-let listeners: Array<() => void> = [];
-
-function emitChange() {
-  for (const listener of listeners) {
-    listener();
-  }
+interface DbReport {
+  id: string;
+  profile_id: string;
+  reporter_id: string;
+  reason: string;
+  details: string;
+  status: string;
+  created_at: string;
 }
 
-function subscribe(listener: () => void) {
-  listeners = [...listeners, listener];
-  return () => {
-    listeners = listeners.filter((l) => l !== listener);
+function toReport(row: DbReport): Report {
+  return {
+    id: row.id,
+    profileId: row.profile_id,
+    reporterId: row.reporter_id,
+    reason: row.reason as ReportReason,
+    details: row.details,
+    status: row.status as Report["status"],
+    createdAt: row.created_at,
   };
 }
 
-function getSnapshot(): string {
-  if (typeof window === "undefined") return "[]";
-  return localStorage.getItem(STORAGE_KEY) || "[]";
-}
-
-function getServerSnapshot(): string {
-  return "[]";
-}
-
 export function useReports() {
-  const raw = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const reports: Report[] = JSON.parse(raw);
+  const [reports, setReports] = useState<Report[]>([]);
+
+  useEffect(() => {
+    let ignore = false;
+    supabase
+      .from("reports")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (!ignore && data) setReports((data as DbReport[]).map(toReport));
+      });
+    return () => { ignore = true; };
+  }, []);
 
   const submitReport = useCallback(
-    (report: Omit<Report, "id" | "status" | "createdAt">) => {
-      const current: Report[] = JSON.parse(
-        localStorage.getItem(STORAGE_KEY) || "[]"
-      );
-      const existing = current.find(
-        (r) =>
-          r.profileId === report.profileId &&
-          r.reporterId === report.reporterId &&
-          r.status === "pending"
-      );
+    async (report: Omit<Report, "id" | "status" | "createdAt">) => {
+      const { data: existing } = await supabase
+        .from("reports")
+        .select("id")
+        .eq("profile_id", report.profileId)
+        .eq("reporter_id", report.reporterId)
+        .eq("status", "pending")
+        .single();
+
       if (existing) return false;
 
-      const newReport: Report = {
-        ...report,
-        id: `report-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-        status: "pending",
-        createdAt: new Date().toISOString(),
-      };
-      const updated = [...current, newReport];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      emitChange();
+      const { data } = await supabase
+        .from("reports")
+        .insert({
+          profile_id: report.profileId,
+          reporter_id: report.reporterId,
+          reason: report.reason,
+          details: report.details,
+          status: "pending",
+        })
+        .select()
+        .single();
+
+      if (data) {
+        setReports((prev) => [toReport(data as DbReport), ...prev]);
+      }
       return true;
     },
     []
   );
 
   const updateReportStatus = useCallback(
-    (reportId: string, status: "dismissed" | "removed") => {
-      const current: Report[] = JSON.parse(
-        localStorage.getItem(STORAGE_KEY) || "[]"
+    async (reportId: string, status: "dismissed" | "removed") => {
+      await supabase.from("reports").update({ status }).eq("id", reportId);
+      setReports((prev) =>
+        prev.map((r) => (r.id === reportId ? { ...r, status } : r))
       );
-      const updated = current.map((r) =>
-        r.id === reportId ? { ...r, status } : r
-      );
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      emitChange();
     },
     []
   );
@@ -103,5 +112,11 @@ export function useReports() {
 
   const pendingReports = reports.filter((r) => r.status === "pending");
 
-  return { reports, pendingReports, submitReport, updateReportStatus, hasReported };
+  return {
+    reports,
+    pendingReports,
+    submitReport,
+    updateReportStatus,
+    hasReported,
+  };
 }
