@@ -235,6 +235,7 @@ export default function FilterBar({
             { value: "", label: "Any" },
             { value: "Sunni", label: "Sunni" },
             { value: "Shia", label: "Shia" },
+            { value: "Other", label: "Other" },
           ]}
         />
 
