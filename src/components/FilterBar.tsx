@@ -46,7 +46,7 @@ function RadioGroup({
 }
 
 const AGE_MIN = 18;
-const AGE_MAX = 55;
+const AGE_MAX = 65;
 
 function RangeSlider({
   label,
