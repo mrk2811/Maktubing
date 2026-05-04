@@ -9,6 +9,7 @@ import VerificationBadges from "@/components/VerificationBadges";
 import InterestButton from "@/components/InterestButton";
 import ShareButton from "@/components/ShareButton";
 import ReportButton from "@/components/ReportButton";
+import { ProfileDetailSkeleton } from "@/components/Skeleton";
 import { Profile } from "@/lib/types";
 import { fetchProfile } from "@/lib/db";
 
@@ -55,8 +56,8 @@ export default function ProfileDetailClient({ id }: { id: string }) {
     return (
       <div className="flex flex-1 flex-col bg-maktub-darker">
         <Navbar />
-        <main className="flex-1 flex items-center justify-center">
-          <div className="text-maktub-text-secondary">Loading...</div>
+        <main className="flex-1">
+          <ProfileDetailSkeleton />
         </main>
       </div>
     );

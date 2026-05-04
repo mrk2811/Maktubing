@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import { InterestListSkeleton } from "@/components/Skeleton";
 import { Profile } from "@/lib/types";
 import { fetchProfiles } from "@/lib/db";
 import { useInterests } from "@/lib/useInterests";
@@ -15,12 +16,18 @@ type Tab = "sent" | "received";
 export default function InterestsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("sent");
   const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(true);
   const { sentInterests, receivedInterests, updateStatus } = useInterests();
   const { addNotification } = useNotifications();
 
   useEffect(() => {
     let ignore = false;
-    fetchProfiles().then((data) => { if (!ignore) setAllProfiles(data); });
+    fetchProfiles().then((data) => {
+      if (!ignore) {
+        setAllProfiles(data);
+        setLoading(false);
+      }
+    });
     return () => { ignore = true; };
   }, []);
 
@@ -107,7 +114,9 @@ export default function InterestsPage() {
         {/* Sent Tab */}
         {activeTab === "sent" && (
           <div>
-            {sentProfiles.length > 0 ? (
+            {loading ? (
+              <InterestListSkeleton />
+            ) : sentProfiles.length > 0 ? (
               <div className="space-y-3">
                 {sentProfiles.map(({ interest, profile }) => (
                   <Link
@@ -146,7 +155,9 @@ export default function InterestsPage() {
         {/* Received Tab */}
         {activeTab === "received" && (
           <div>
-            {receivedProfiles.length > 0 ? (
+            {loading ? (
+              <InterestListSkeleton />
+            ) : receivedProfiles.length > 0 ? (
               <div className="space-y-3">
                 {receivedProfiles.map(({ interest, profile }) => (
                   <div

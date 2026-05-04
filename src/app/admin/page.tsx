@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Navbar from "@/components/Navbar";
+import { InterestListSkeleton } from "@/components/Skeleton";
 import { Profile } from "@/lib/types";
 import { fetchProfiles } from "@/lib/db";
 import { useAdminStore } from "@/lib/useAdminStore";
@@ -19,13 +20,17 @@ const REASON_LABELS: Record<ReportReason, string> = {
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("profiles");
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(true);
   const { setVerified } = useAdminStore();
   const { pendingReports, updateReportStatus } = useReports();
 
   useEffect(() => {
     let ignore = false;
     fetchProfiles().then((data) => {
-      if (!ignore) setProfiles(data);
+      if (!ignore) {
+        setProfiles(data);
+        setLoading(false);
+      }
     });
     return () => { ignore = true; };
   }, []);
@@ -84,6 +89,9 @@ export default function AdminDashboardPage() {
 
         {activeTab === "profiles" && (
           <>
+            {loading ? (
+              <InterestListSkeleton count={6} />
+            ) : <>
             {/* Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
               <div className="bg-maktub-panel rounded-xl border border-maktub-border p-4">
@@ -142,6 +150,7 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
             </section>
+          </>}
           </>
         )}
 

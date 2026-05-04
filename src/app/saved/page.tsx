@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import ProfileCard from "@/components/ProfileCard";
+import { ProfileGridSkeleton } from "@/components/Skeleton";
 import { Profile } from "@/lib/types";
 import { fetchProfiles } from "@/lib/db";
 import { useSavedProfiles } from "@/lib/useSavedProfiles";
@@ -11,10 +12,16 @@ import { useSavedProfiles } from "@/lib/useSavedProfiles";
 export default function SavedPage() {
   const { savedIds } = useSavedProfiles();
   const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let ignore = false;
-    fetchProfiles().then((data) => { if (!ignore) setAllProfiles(data); });
+    fetchProfiles().then((data) => {
+      if (!ignore) {
+        setAllProfiles(data);
+        setLoading(false);
+      }
+    });
     return () => { ignore = true; };
   }, []);
 
@@ -37,7 +44,9 @@ export default function SavedPage() {
           </p>
         </div>
 
-        {savedProfiles.length > 0 ? (
+        {loading ? (
+          <ProfileGridSkeleton count={4} />
+        ) : savedProfiles.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {savedProfiles.map((profile) => (
               <ProfileCard key={profile.id} profile={profile} />
