@@ -19,6 +19,7 @@ export interface Profile {
   aboutMe: string;
   contactName: string;
   contactPhone: string;
+  imageUrl?: string;
   createdAt: string;
   verified: boolean;
   phoneVerified: boolean;

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import SaveButton from "@/components/SaveButton";
 import VerificationBadges from "@/components/VerificationBadges";
@@ -101,8 +102,12 @@ export default function ProfileDetailClient({ id }: { id: string }) {
         <div className="bg-maktub-panel rounded-2xl border border-maktub-border overflow-hidden">
           <div className="bg-maktub-bubble-out/30 px-6 py-6">
             <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-maktub-green/20 flex items-center justify-center text-maktub-green font-bold text-2xl shrink-0">
-                {initials}
+              <div className="w-20 h-20 rounded-full bg-maktub-green/20 flex items-center justify-center text-maktub-green font-bold text-2xl shrink-0 overflow-hidden">
+                {profile.imageUrl ? (
+                  <Image src={profile.imageUrl} alt={profile.name} width={80} height={80} className="w-full h-full object-cover" />
+                ) : (
+                  initials
+                )}
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 flex-wrap">

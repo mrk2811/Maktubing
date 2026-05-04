@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Profile } from "@/lib/types";
 import SaveButton from "@/components/SaveButton";
 import VerifiedBadgeClient from "@/components/VerifiedBadgeClient";
@@ -26,8 +27,12 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
       <div className="bg-maktub-panel rounded-2xl p-5 border border-maktub-border transition-all hover:border-maktub-green/50 hover:shadow-lg hover:shadow-maktub-green/5">
         {/* Header */}
         <div className="flex items-start gap-4 mb-4">
-          <div className="w-14 h-14 rounded-full bg-maktub-green/20 flex items-center justify-center text-maktub-green font-bold text-lg shrink-0">
-            {initials}
+          <div className="w-14 h-14 rounded-full bg-maktub-green/20 flex items-center justify-center text-maktub-green font-bold text-lg shrink-0 overflow-hidden">
+            {profile.imageUrl ? (
+              <Image src={profile.imageUrl} alt={profile.name} width={56} height={56} className="w-full h-full object-cover" />
+            ) : (
+              initials
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">

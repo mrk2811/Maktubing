@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { useUserProfile } from "@/lib/useUserProfile";
 import { Profile } from "@/lib/types";
+import { uploadProfileImage } from "@/lib/db";
+import ImageUpload from "@/components/ImageUpload";
 
 interface FormData {
   name: string;
@@ -193,6 +195,7 @@ export default function CreateProfilePage() {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [submitted, setSubmitted] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const { saveProfile } = useUserProfile();
 
   const handleInputChange = (
@@ -201,7 +204,7 @@ export default function CreateProfilePage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const profile: Profile = {
       id: "current-user",
@@ -237,7 +240,13 @@ export default function CreateProfilePage() {
       phoneVerified: false,
       adminVerified: false,
     };
-    saveProfile(profile);
+    await saveProfile(profile);
+    if (imageFile) {
+      const deviceId = (await import("@/lib/db")).getDeviceId();
+      const profileId = `user-${deviceId}`;
+      const imageUrl = await uploadProfileImage(profileId, imageFile);
+      await saveProfile({ ...profile, imageUrl });
+    }
     setSubmitted(true);
     setTimeout(() => {
       router.push("/profiles");
@@ -296,6 +305,13 @@ export default function CreateProfilePage() {
 
         <form onSubmit={handleSubmit}>
           <div className="bg-maktub-panel rounded-2xl border border-maktub-border p-6">
+            {/* Profile Photo */}
+            <SectionHeader title="Profile Photo" />
+            <ImageUpload
+              onImageSelected={(file) => setImageFile(file)}
+              onImageRemoved={() => setImageFile(null)}
+            />
+
             {/* Personal Information */}
             <SectionHeader title="Personal Information" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

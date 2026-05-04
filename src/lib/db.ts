@@ -42,6 +42,7 @@ interface DbProfile {
   contact_phone: string;
   phone_verified: boolean;
   admin_verified: boolean;
+  image_url: string | null;
   created_at: string;
 }
 
@@ -75,6 +76,7 @@ function toProfile(row: DbProfile): Profile {
     aboutMe: row.about_me,
     contactName: row.contact_name,
     contactPhone: row.contact_phone,
+    imageUrl: row.image_url || undefined,
     createdAt: row.created_at,
     verified: row.phone_verified && row.admin_verified,
     phoneVerified: row.phone_verified,
@@ -106,6 +108,7 @@ function toDbProfile(profile: Profile): Omit<DbProfile, "created_at"> & { create
     contact_phone: profile.contactPhone,
     phone_verified: profile.phoneVerified,
     admin_verified: profile.adminVerified,
+    image_url: profile.imageUrl || null,
   };
 }
 
@@ -372,5 +375,61 @@ export async function setAdminVerified(profileId: string, verified: boolean): Pr
     .update({ admin_verified: verified })
     .eq("id", profileId);
   if (error) throw error;
+}
+
+// ---- PROFILE IMAGES ----
+
+export async function uploadProfileImage(
+  profileId: string,
+  file: File
+): Promise<string> {
+  const ext = file.name.split(".").pop() || "jpg";
+  const path = `${profileId}.${ext}`;
+
+  const { error: removeError } = await supabase.storage
+    .from("profile-images")
+    .remove([path]);
+  if (removeError) {
+    // ignore remove errors — file may not exist yet
+  }
+
+  const { error } = await supabase.storage
+    .from("profile-images")
+    .upload(path, file, { upsert: true });
+  if (error) throw error;
+
+  const { data } = supabase.storage
+    .from("profile-images")
+    .getPublicUrl(path);
+
+  const imageUrl = data.publicUrl;
+
+  await supabase
+    .from("profiles")
+    .update({ image_url: imageUrl })
+    .eq("id", profileId);
+
+  return imageUrl;
+}
+
+export async function deleteProfileImage(profileId: string): Promise<void> {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("image_url")
+    .eq("id", profileId)
+    .single();
+
+  if (profile?.image_url) {
+    const url = profile.image_url as string;
+    const parts = url.split("/profile-images/");
+    if (parts[1]) {
+      await supabase.storage.from("profile-images").remove([parts[1]]);
+    }
+  }
+
+  await supabase
+    .from("profiles")
+    .update({ image_url: null })
+    .eq("id", profileId);
 }
 
