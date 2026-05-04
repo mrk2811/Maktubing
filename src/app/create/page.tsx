@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import { useToast } from "@/components/Toast";
 import { useUserProfile } from "@/lib/useUserProfile";
 import { Profile } from "@/lib/types";
 import { uploadProfileImage } from "@/lib/db";
@@ -197,6 +198,7 @@ export default function CreateProfilePage() {
   const [submitted, setSubmitted] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { saveProfile } = useUserProfile();
+  const { showToast } = useToast();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -240,17 +242,21 @@ export default function CreateProfilePage() {
       phoneVerified: false,
       adminVerified: false,
     };
-    await saveProfile(profile);
-    if (imageFile) {
-      const { getUserId } = await import("@/lib/auth");
-      const profileId = `user-${getUserId()}`;
-      const imageUrl = await uploadProfileImage(profileId, imageFile);
-      await saveProfile({ ...profile, imageUrl });
+    try {
+      await saveProfile(profile);
+      if (imageFile) {
+        const { getUserId } = await import("@/lib/auth");
+        const profileId = `user-${getUserId()}`;
+        const imageUrl = await uploadProfileImage(profileId, imageFile);
+        await saveProfile({ ...profile, imageUrl });
+      }
+      setSubmitted(true);
+      setTimeout(() => {
+        router.push("/profiles");
+      }, 2000);
+    } catch {
+      showToast("Failed to save profile. Please try again.");
     }
-    setSubmitted(true);
-    setTimeout(() => {
-      router.push("/profiles");
-    }, 2000);
   };
 
   if (submitted) {

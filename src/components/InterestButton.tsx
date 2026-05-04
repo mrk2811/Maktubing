@@ -2,6 +2,7 @@
 
 import { useInterests } from "@/lib/useInterests";
 import { useNotifications } from "@/lib/useNotifications";
+import { useToast } from "@/components/Toast";
 
 const CURRENT_USER_ID = "current-user";
 
@@ -14,18 +15,23 @@ export default function InterestButton({
 }) {
   const { sendInterest, getInterestStatus } = useInterests();
   const { addNotification } = useNotifications();
+  const { showToast } = useToast();
   const status = getInterestStatus(CURRENT_USER_ID, profileId);
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (!status) {
-      sendInterest(CURRENT_USER_ID, profileId);
-      addNotification({
-        type: "interest_received",
-        fromProfileId: CURRENT_USER_ID,
-        toProfileId: profileId,
-      });
+      try {
+        await sendInterest(CURRENT_USER_ID, profileId);
+        await addNotification({
+          type: "interest_received",
+          fromProfileId: CURRENT_USER_ID,
+          toProfileId: profileId,
+        });
+      } catch {
+        showToast("Failed to send interest. Please try again.");
+      }
     }
   };
 

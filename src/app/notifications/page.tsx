@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import { useToast } from "@/components/Toast";
 import { NotificationListSkeleton } from "@/components/Skeleton";
 import { Profile } from "@/lib/types";
 import { fetchProfiles } from "@/lib/db";
@@ -12,17 +13,25 @@ export default function NotificationsPage() {
   const { notifications, markAllRead } = useNotifications();
   const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
 
   useEffect(() => {
     let ignore = false;
-    fetchProfiles().then((data) => {
-      if (!ignore) {
-        setAllProfiles(data);
-        setLoading(false);
-      }
-    });
+    fetchProfiles()
+      .then((data) => {
+        if (!ignore) {
+          setAllProfiles(data);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!ignore) {
+          setLoading(false);
+          showToast("Failed to load notifications.");
+        }
+      });
     return () => { ignore = true; };
-  }, []); 
+  }, [showToast]);
 
   useEffect(() => {
     if (notifications.some((n) => !n.read)) {

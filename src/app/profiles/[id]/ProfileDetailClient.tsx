@@ -9,6 +9,7 @@ import VerificationBadges from "@/components/VerificationBadges";
 import InterestButton from "@/components/InterestButton";
 import ShareButton from "@/components/ShareButton";
 import ReportButton from "@/components/ReportButton";
+import { useToast } from "@/components/Toast";
 import { ProfileDetailSkeleton } from "@/components/Skeleton";
 import { Profile } from "@/lib/types";
 import { fetchProfile } from "@/lib/db";
@@ -44,13 +45,19 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 export default function ProfileDetailClient({ id }: { id: string }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
 
   useEffect(() => {
-    fetchProfile(id).then((p) => {
-      setProfile(p);
-      setLoading(false);
-    });
-  }, [id]);
+    fetchProfile(id)
+      .then((p) => {
+        setProfile(p);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+        showToast("Failed to load profile. Please try again.");
+      });
+  }, [id, showToast]);
 
   if (loading) {
     return (

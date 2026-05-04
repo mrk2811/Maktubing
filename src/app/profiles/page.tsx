@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import ProfileCard from "@/components/ProfileCard";
 import FilterBar from "@/components/FilterBar";
+import { useToast } from "@/components/Toast";
 import { ProfileGridSkeleton } from "@/components/Skeleton";
 import { Profile, FilterOptions } from "@/lib/types";
 import { useSavedFilters } from "@/lib/useSavedFilters";
@@ -27,19 +28,27 @@ export default function ProfilesPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const { savedFilters, saveFilter, deleteFilter } = useSavedFilters();
+  const { showToast } = useToast();
 
   useEffect(() => {
     let ignore = false;
     const load = async () => {
-      const data = await fetchProfiles(filters);
-      if (!ignore) {
-        setProfiles(data);
-        setLoading(false);
+      try {
+        const data = await fetchProfiles(filters);
+        if (!ignore) {
+          setProfiles(data);
+          setLoading(false);
+        }
+      } catch {
+        if (!ignore) {
+          setLoading(false);
+          showToast("Failed to load profiles. Please check your connection.");
+        }
       }
     };
     load();
     return () => { ignore = true; };
-  }, [filters]);
+  }, [filters, showToast]);
 
   const filteredProfiles = profiles;
 

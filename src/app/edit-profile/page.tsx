@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import { useToast } from "@/components/Toast";
 import { useUserProfile } from "@/lib/useUserProfile";
 import { Profile } from "@/lib/types";
 import { uploadProfileImage, deleteProfileImage } from "@/lib/db";
@@ -200,6 +201,7 @@ export default function EditProfilePage() {
   const [saved, setSaved] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [removeImage, setRemoveImage] = useState(false);
+  const { showToast } = useToast();
 
   const formDataFromProfile = useMemo(
     () => (profile ? profileToFormData(profile) : null),
@@ -294,15 +296,19 @@ export default function EditProfilePage() {
       await deleteProfileImage(profile.id);
       updatedProfile.imageUrl = undefined;
     }
-    await saveProfile(updatedProfile);
-    if (imageFile) {
-      const imageUrl = await uploadProfileImage(profile.id, imageFile);
-      await saveProfile({ ...updatedProfile, imageUrl });
+    try {
+      await saveProfile(updatedProfile);
+      if (imageFile) {
+        const imageUrl = await uploadProfileImage(profile.id, imageFile);
+        await saveProfile({ ...updatedProfile, imageUrl });
+      }
+      setSaved(true);
+      setTimeout(() => {
+        router.push("/more");
+      }, 1500);
+    } catch {
+      showToast("Failed to save changes. Please try again.");
     }
-    setSaved(true);
-    setTimeout(() => {
-      router.push("/more");
-    }, 1500);
   };
 
   if (saved) {
