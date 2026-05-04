@@ -28,6 +28,7 @@ interface DbProfile {
   contact_phone: string;
   phone_verified: boolean;
   admin_verified: boolean;
+  image_url: string | null;
   created_at: string;
 }
 
@@ -61,6 +62,7 @@ function toProfile(row: DbProfile): Profile {
     aboutMe: row.about_me,
     contactName: row.contact_name,
     contactPhone: row.contact_phone,
+    imageUrl: row.image_url || undefined,
     createdAt: row.created_at,
     verified: row.phone_verified && row.admin_verified,
     phoneVerified: row.phone_verified,
@@ -110,6 +112,7 @@ export function useUserProfile() {
       contact_phone: data.contactPhone,
       phone_verified: data.phoneVerified,
       admin_verified: data.adminVerified,
+      image_url: data.imageUrl || null,
     };
     const { data: result } = await supabase
       .from("profiles")

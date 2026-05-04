@@ -6,6 +6,8 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { useUserProfile } from "@/lib/useUserProfile";
 import { Profile } from "@/lib/types";
+import { uploadProfileImage, deleteProfileImage } from "@/lib/db";
+import ImageUpload from "@/components/ImageUpload";
 
 interface FormData {
   name: string;
@@ -196,6 +198,8 @@ export default function EditProfilePage() {
   const router = useRouter();
   const { profile, saveProfile } = useUserProfile();
   const [saved, setSaved] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
 
   const formDataFromProfile = useMemo(
     () => (profile ? profileToFormData(profile) : null),
@@ -253,7 +257,7 @@ export default function EditProfilePage() {
     setFormData({ ...(activeFormData), [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const data = activeFormData;
     const updatedProfile: Profile = {
@@ -286,7 +290,15 @@ export default function EditProfilePage() {
       contactName: data.contactName,
       contactPhone: data.contactPhone,
     };
-    saveProfile(updatedProfile);
+    if (removeImage && profile.imageUrl) {
+      await deleteProfileImage(profile.id);
+      updatedProfile.imageUrl = undefined;
+    }
+    await saveProfile(updatedProfile);
+    if (imageFile) {
+      const imageUrl = await uploadProfileImage(profile.id, imageFile);
+      await saveProfile({ ...updatedProfile, imageUrl });
+    }
     setSaved(true);
     setTimeout(() => {
       router.push("/more");
@@ -350,6 +362,19 @@ export default function EditProfilePage() {
           onSubmit={handleSubmit}
           className="bg-maktub-panel rounded-2xl border border-maktub-border p-6"
         >
+          <SectionHeader title="Profile Photo" />
+          <ImageUpload
+            currentImageUrl={profile.imageUrl}
+            onImageSelected={(file) => {
+              setImageFile(file);
+              setRemoveImage(false);
+            }}
+            onImageRemoved={() => {
+              setImageFile(null);
+              setRemoveImage(true);
+            }}
+          />
+
           <SectionHeader title="Personal Information" />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <InputField
