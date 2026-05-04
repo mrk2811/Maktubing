@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Profile } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
-import { getDeviceId } from "@/lib/db";
+import { getUserId } from "@/lib/auth";
 
 interface DbProfile {
   id: string;
@@ -74,8 +74,8 @@ export function useUserProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
-    const deviceId = getDeviceId();
-    const profileId = `user-${deviceId}`;
+    const uid = getUserId();
+    const profileId = `user-${uid}`;
     supabase
       .from("profiles")
       .select("*")
@@ -87,8 +87,8 @@ export function useUserProfile() {
   }, []);
 
   const saveProfile = useCallback(async (data: Profile) => {
-    const deviceId = getDeviceId();
-    const profileId = `user-${deviceId}`;
+    const uid = getUserId();
+    const profileId = `user-${uid}`;
     const dbData = {
       id: profileId,
       name: data.name,
@@ -123,8 +123,8 @@ export function useUserProfile() {
   }, []);
 
   const clearProfile = useCallback(async () => {
-    const deviceId = getDeviceId();
-    const profileId = `user-${deviceId}`;
+    const uid = getUserId();
+    const profileId = `user-${uid}`;
     await supabase.from("profiles").delete().eq("id", profileId);
     setProfile(null);
   }, []);

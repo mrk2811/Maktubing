@@ -9,6 +9,8 @@ import {
   verifyCode,
   cleanupRecaptcha,
 } from "@/lib/phoneVerification";
+import { linkFirebaseAuth } from "@/lib/auth";
+import { auth as firebaseAuth } from "@/lib/firebase";
 
 type Step = "phone" | "otp" | "success";
 
@@ -90,6 +92,15 @@ export default function VerifyPhonePage() {
       try {
         const valid = await verifyCode(code);
         if (valid) {
+          try {
+            const user = firebaseAuth.currentUser;
+            if (user) {
+              const idToken = await user.getIdToken();
+              await linkFirebaseAuth(idToken);
+            }
+          } catch {
+            // non-critical: linking failed but verification still succeeded
+          }
           setStep("success");
           setTimeout(() => {
             router.push("/profiles");

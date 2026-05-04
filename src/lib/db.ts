@@ -1,14 +1,12 @@
 import { supabase } from "@/lib/supabase";
 import { Profile, FilterOptions } from "@/lib/types";
+import { getUserId } from "@/lib/auth";
 
+export { getUserId };
+
+/** @deprecated Use getUserId() from auth.ts instead */
 export function getDeviceId(): string {
-  if (typeof window === "undefined") return "server";
-  let id = localStorage.getItem("maktub-device-id");
-  if (!id) {
-    id = `device-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-    localStorage.setItem("maktub-device-id", id);
-  }
-  return id;
+  return getUserId();
 }
 
 interface DbProfile {
@@ -304,7 +302,7 @@ export async function updateReportStatus(reportId: string, status: "dismissed" |
 // ---- SAVED PROFILES ----
 
 export async function fetchSavedProfileIds(): Promise<string[]> {
-  const userId = getDeviceId();
+  const userId = getUserId();
   const { data, error } = await supabase
     .from("saved_profiles")
     .select("profile_id")
@@ -314,7 +312,7 @@ export async function fetchSavedProfileIds(): Promise<string[]> {
 }
 
 export async function toggleSavedProfile(profileId: string): Promise<boolean> {
-  const userId = getDeviceId();
+  const userId = getUserId();
   const { data: existing } = await supabase
     .from("saved_profiles")
     .select("id")
@@ -342,7 +340,7 @@ export interface DbSavedFilter {
 }
 
 export async function fetchSavedFilters(): Promise<DbSavedFilter[]> {
-  const userId = getDeviceId();
+  const userId = getUserId();
   const { data, error } = await supabase
     .from("saved_filters")
     .select("*")
@@ -353,7 +351,7 @@ export async function fetchSavedFilters(): Promise<DbSavedFilter[]> {
 }
 
 export async function saveSavedFilter(name: string, filters: FilterOptions): Promise<void> {
-  const userId = getDeviceId();
+  const userId = getUserId();
   const { error } = await supabase.from("saved_filters").insert({
     user_id: userId,
     name,

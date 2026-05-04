@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import BottomNav from "@/components/BottomNav";
+import { AuthProvider } from "@/lib/AuthProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -57,8 +58,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-maktub-darker text-maktub-text pb-16 md:pb-0">
-        {children}
-        <BottomNav />
+        <AuthProvider>
+          {children}
+          <BottomNav />
+        </AuthProvider>
       </body>
     </html>
   );

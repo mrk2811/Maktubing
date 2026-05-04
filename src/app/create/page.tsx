@@ -242,8 +242,8 @@ export default function CreateProfilePage() {
     };
     await saveProfile(profile);
     if (imageFile) {
-      const deviceId = (await import("@/lib/db")).getDeviceId();
-      const profileId = `user-${deviceId}`;
+      const { getUserId } = await import("@/lib/auth");
+      const profileId = `user-${getUserId()}`;
       const imageUrl = await uploadProfileImage(profileId, imageFile);
       await saveProfile({ ...profile, imageUrl });
     }
