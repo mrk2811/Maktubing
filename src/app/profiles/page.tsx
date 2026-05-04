@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import ProfileCard from "@/components/ProfileCard";
 import FilterBar from "@/components/FilterBar";
+import { ProfileGridSkeleton } from "@/components/Skeleton";
 import { Profile, FilterOptions } from "@/lib/types";
 import { useSavedFilters } from "@/lib/useSavedFilters";
 import { fetchProfiles } from "@/lib/db";
@@ -24,13 +25,19 @@ export default function ProfilesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(true);
   const { savedFilters, saveFilter, deleteFilter } = useSavedFilters();
 
   useEffect(() => {
     let ignore = false;
-    fetchProfiles(filters).then((data) => {
-      if (!ignore) setProfiles(data);
-    });
+    const load = async () => {
+      const data = await fetchProfiles(filters);
+      if (!ignore) {
+        setProfiles(data);
+        setLoading(false);
+      }
+    };
+    load();
     return () => { ignore = true; };
   }, [filters]);
 
@@ -139,7 +146,9 @@ export default function ProfilesPage() {
         )}
 
         {/* Profile Grid */}
-        {filteredProfiles.length > 0 ? (
+        {loading ? (
+          <ProfileGridSkeleton />
+        ) : filteredProfiles.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredProfiles.map((profile) => (
               <ProfileCard key={profile.id} profile={profile} />

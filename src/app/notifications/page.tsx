@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import { NotificationListSkeleton } from "@/components/Skeleton";
 import { Profile } from "@/lib/types";
 import { fetchProfiles } from "@/lib/db";
 import { useNotifications, Notification } from "@/lib/useNotifications";
@@ -10,12 +11,18 @@ import { useNotifications, Notification } from "@/lib/useNotifications";
 export default function NotificationsPage() {
   const { notifications, markAllRead } = useNotifications();
   const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let ignore = false;
-    fetchProfiles().then((data) => { if (!ignore) setAllProfiles(data); });
+    fetchProfiles().then((data) => {
+      if (!ignore) {
+        setAllProfiles(data);
+        setLoading(false);
+      }
+    });
     return () => { ignore = true; };
-  }, []);
+  }, []); 
 
   useEffect(() => {
     if (notifications.some((n) => !n.read)) {
@@ -34,7 +41,9 @@ export default function NotificationsPage() {
           </p>
         </div>
 
-        {notifications.length > 0 ? (
+        {loading ? (
+          <NotificationListSkeleton />
+        ) : notifications.length > 0 ? (
           <div className="space-y-2">
             {notifications.map((notification) => (
               <NotificationItem
