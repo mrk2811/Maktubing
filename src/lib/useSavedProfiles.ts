@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { getDeviceId } from "@/lib/db";
+import { getUserId } from "@/lib/auth";
 
 export function useSavedProfiles() {
   const [savedIds, setSavedIds] = useState<string[]>([]);
 
   useEffect(() => {
     let ignore = false;
-    const userId = getDeviceId();
+    const userId = getUserId();
     supabase
       .from("saved_profiles")
       .select("profile_id")
@@ -22,7 +22,7 @@ export function useSavedProfiles() {
 
   const toggleSave = useCallback(
     async (id: string) => {
-      const userId = getDeviceId();
+      const userId = getUserId();
       if (savedIds.includes(id)) {
         await supabase
           .from("saved_profiles")

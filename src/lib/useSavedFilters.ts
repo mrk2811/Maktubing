@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { FilterOptions } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
-import { getDeviceId } from "@/lib/db";
+import { getUserId } from "@/lib/auth";
 
 export interface SavedFilter {
   id: string;
@@ -34,7 +34,7 @@ export function useSavedFilters() {
 
   useEffect(() => {
     let ignore = false;
-    const userId = getDeviceId();
+    const userId = getUserId();
     supabase
       .from("saved_filters")
       .select("*")
@@ -47,7 +47,7 @@ export function useSavedFilters() {
   }, []);
 
   const saveFilter = useCallback(async (name: string, filters: FilterOptions) => {
-    const userId = getDeviceId();
+    const userId = getUserId();
     const { data } = await supabase
       .from("saved_filters")
       .insert({ user_id: userId, name, filters })
