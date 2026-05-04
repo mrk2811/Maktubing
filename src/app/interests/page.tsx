@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import { useToast } from "@/components/Toast";
 import { Profile } from "@/lib/types";
 import { fetchProfiles } from "@/lib/db";
 import { useInterests } from "@/lib/useInterests";
@@ -17,12 +18,17 @@ export default function InterestsPage() {
   const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
   const { sentInterests, receivedInterests, updateStatus } = useInterests();
   const { addNotification } = useNotifications();
+  const { showToast } = useToast();
 
   useEffect(() => {
     let ignore = false;
-    fetchProfiles().then((data) => { if (!ignore) setAllProfiles(data); });
+    fetchProfiles()
+      .then((data) => { if (!ignore) setAllProfiles(data); })
+      .catch(() => {
+        if (!ignore) showToast("Failed to load interests.");
+      });
     return () => { ignore = true; };
-  }, []);
+  }, [showToast]);
 
   const handleAccept = useCallback(
     (fromProfileId: string, toProfileId: string) => {

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useReports, ReportReason } from "@/lib/useReports";
+import { useToast } from "@/components/Toast";
 
 const CURRENT_USER_ID = "current-user";
 
@@ -18,25 +19,31 @@ export default function ReportButton({ profileId }: { profileId: string }) {
   const [details, setDetails] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const { submitReport, hasReported } = useReports();
+  const { showToast } = useToast();
 
   const alreadyReported = hasReported(profileId, CURRENT_USER_ID);
 
   const handleSubmit = async () => {
     if (!selectedReason) return;
-    const success = await submitReport({
-      profileId,
-      reporterId: CURRENT_USER_ID,
-      reason: selectedReason,
-      details,
-    });
-    if (success) {
-      setSubmitted(true);
-      setTimeout(() => {
-        setShowModal(false);
-        setSubmitted(false);
-        setSelectedReason(null);
-        setDetails("");
-      }, 1500);
+    try {
+      const success = await submitReport({
+        profileId,
+        reporterId: CURRENT_USER_ID,
+        reason: selectedReason,
+        details,
+      });
+      if (success) {
+        setSubmitted(true);
+        setTimeout(() => {
+          setShowModal(false);
+          setSubmitted(false);
+          setSelectedReason(null);
+          setDetails("");
+        }, 1500);
+      }
+    } catch {
+      showToast("Failed to submit report. Please try again.");
+      setShowModal(false);
     }
   };
 

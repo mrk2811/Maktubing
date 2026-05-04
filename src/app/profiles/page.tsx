@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import ProfileCard from "@/components/ProfileCard";
 import FilterBar from "@/components/FilterBar";
+import { useToast } from "@/components/Toast";
 import { Profile, FilterOptions } from "@/lib/types";
 import { useSavedFilters } from "@/lib/useSavedFilters";
 import { fetchProfiles } from "@/lib/db";
@@ -25,14 +26,19 @@ export default function ProfilesPage() {
   const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const { savedFilters, saveFilter, deleteFilter } = useSavedFilters();
+  const { showToast } = useToast();
 
   useEffect(() => {
     let ignore = false;
-    fetchProfiles(filters).then((data) => {
-      if (!ignore) setProfiles(data);
-    });
+    fetchProfiles(filters)
+      .then((data) => {
+        if (!ignore) setProfiles(data);
+      })
+      .catch(() => {
+        if (!ignore) showToast("Failed to load profiles. Please check your connection.");
+      });
     return () => { ignore = true; };
-  }, [filters]);
+  }, [filters, showToast]);
 
   const filteredProfiles = profiles;
 

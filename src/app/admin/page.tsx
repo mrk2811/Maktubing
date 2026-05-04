@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Navbar from "@/components/Navbar";
+import { useToast } from "@/components/Toast";
 import { Profile } from "@/lib/types";
 import { fetchProfiles } from "@/lib/db";
 import { useAdminStore } from "@/lib/useAdminStore";
@@ -21,14 +22,19 @@ export default function AdminDashboardPage() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const { setVerified } = useAdminStore();
   const { pendingReports, updateReportStatus } = useReports();
+  const { showToast } = useToast();
 
   useEffect(() => {
     let ignore = false;
-    fetchProfiles().then((data) => {
-      if (!ignore) setProfiles(data);
-    });
+    fetchProfiles()
+      .then((data) => {
+        if (!ignore) setProfiles(data);
+      })
+      .catch(() => {
+        if (!ignore) showToast("Failed to load admin data.");
+      });
     return () => { ignore = true; };
-  }, []);
+  }, [showToast]);
 
   const handleVerify = useCallback(async (profileId: string) => {
     await setVerified(profileId, true);

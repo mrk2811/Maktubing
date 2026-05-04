@@ -1,6 +1,7 @@
 "use client";
 
 import { useSavedProfiles } from "@/lib/useSavedProfiles";
+import { useToast } from "@/components/Toast";
 
 export default function SaveButton({
   profileId,
@@ -10,6 +11,7 @@ export default function SaveButton({
   size?: "sm" | "md";
 }) {
   const { isSaved, toggleSave } = useSavedProfiles();
+  const { showToast } = useToast();
   const saved = isSaved(profileId);
 
   const sizeClass = size === "sm" ? "w-8 h-8" : "w-10 h-10";
@@ -17,10 +19,14 @@ export default function SaveButton({
 
   return (
     <button
-      onClick={(e) => {
+      onClick={async (e) => {
         e.preventDefault();
         e.stopPropagation();
-        toggleSave(profileId);
+        try {
+          await toggleSave(profileId);
+        } catch {
+          showToast("Failed to save profile.");
+        }
       }}
       className={`${sizeClass} flex items-center justify-center rounded-full transition-colors ${
         saved

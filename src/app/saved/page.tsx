@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import ProfileCard from "@/components/ProfileCard";
+import { useToast } from "@/components/Toast";
 import { Profile } from "@/lib/types";
 import { fetchProfiles } from "@/lib/db";
 import { useSavedProfiles } from "@/lib/useSavedProfiles";
@@ -11,12 +12,17 @@ import { useSavedProfiles } from "@/lib/useSavedProfiles";
 export default function SavedPage() {
   const { savedIds } = useSavedProfiles();
   const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
+  const { showToast } = useToast();
 
   useEffect(() => {
     let ignore = false;
-    fetchProfiles().then((data) => { if (!ignore) setAllProfiles(data); });
+    fetchProfiles()
+      .then((data) => { if (!ignore) setAllProfiles(data); })
+      .catch(() => {
+        if (!ignore) showToast("Failed to load saved profiles.");
+      });
     return () => { ignore = true; };
-  }, []);
+  }, [showToast]);
 
   const savedProfiles = useMemo(
     () => allProfiles.filter((p) => savedIds.includes(p.id)),

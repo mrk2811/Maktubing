@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import BottomNav from "@/components/BottomNav";
 import { AuthProvider } from "@/lib/AuthProvider";
+import { ToastProvider } from "@/components/Toast";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -59,8 +60,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-maktub-darker text-maktub-text pb-16 md:pb-0">
         <AuthProvider>
-          {children}
-          <BottomNav />
+          <ToastProvider>
+            {children}
+            <BottomNav />
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>
