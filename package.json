@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "import-profiles": "node scripts/import-profiles.mjs",
+    "import-profiles:dry": "node scripts/import-profiles.mjs --dry-run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.1",
