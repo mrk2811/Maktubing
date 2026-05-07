@@ -293,22 +293,33 @@ export default function EditProfilePage() {
       contactPhone: data.contactPhone,
     };
     if (removeImage && profile.imageUrl) {
-      await deleteProfileImage(profile.id);
-      updatedProfile.imageUrl = undefined;
+      try {
+        await deleteProfileImage(profile.id);
+        updatedProfile.imageUrl = undefined;
+      } catch {
+        showToast("Failed to remove photo.", "warning");
+      }
     }
     try {
       await saveProfile(updatedProfile);
-      if (imageFile) {
-        const imageUrl = await uploadProfileImage(profile.id, imageFile);
-        await saveProfile({ ...updatedProfile, imageUrl });
-      }
-      setSaved(true);
-      setTimeout(() => {
-        router.push("/more");
-      }, 1500);
     } catch {
       showToast("Failed to save changes. Please try again.");
+      return;
     }
+
+    if (imageFile) {
+      try {
+        const imageUrl = await uploadProfileImage(profile.id, imageFile);
+        await saveProfile({ ...updatedProfile, imageUrl });
+      } catch {
+        showToast("Profile saved, but photo upload failed.", "warning");
+      }
+    }
+
+    setSaved(true);
+    setTimeout(() => {
+      router.push("/more");
+    }, 1500);
   };
 
   if (saved) {
