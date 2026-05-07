@@ -61,9 +61,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased bg-maktub-panel`}
     >
-      <body className="min-h-full flex flex-col bg-maktub-darker text-maktub-text pb-16 md:pb-0">
+      <body className="min-h-full flex flex-col bg-maktub-darker text-maktub-text pb-safe md:pb-0">
         <AuthProvider>
           <ToastProvider>
             <ServiceWorkerRegistration />

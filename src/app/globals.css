@@ -58,6 +58,11 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* Body bottom padding that accounts for nav + safe area */
+.pb-safe {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+}
+
 /* Prevent text size adjustment on orientation change */
 html {
   -webkit-text-size-adjust: 100%;
