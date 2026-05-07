@@ -6,6 +6,7 @@ import { ToastProvider } from "@/components/Toast";
 import ServiceWorkerRegistration from "@/components/ServiceWorker";
 import OfflineBanner from "@/components/OfflineBanner";
 import InstallPrompt from "@/components/InstallPrompt";
+import SplashScreen from "@/components/SplashScreen";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -66,6 +67,7 @@ export default function RootLayout({
         <AuthProvider>
           <ToastProvider>
             <ServiceWorkerRegistration />
+            <SplashScreen />
             <OfflineBanner />
             {children}
             <BottomNav />
