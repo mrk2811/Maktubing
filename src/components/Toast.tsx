@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback } from "react";
 
-type ToastType = "error" | "success" | "info";
+type ToastType = "error" | "success" | "info" | "warning";
 
 interface Toast {
   id: string;
@@ -45,11 +45,13 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 ? "bg-red-50 border-red-200 text-red-800"
                 : toast.type === "success"
                 ? "bg-green-50 border-green-200 text-green-800"
+                : toast.type === "warning"
+                ? "bg-amber-50 border-amber-200 text-amber-800"
                 : "bg-blue-50 border-blue-200 text-blue-800"
             }`}
           >
             <span className="shrink-0 mt-0.5">
-              {toast.type === "error" ? (
+              {toast.type === "error" || toast.type === "warning" ? (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
