@@ -1,4 +1,4 @@
-const CACHE_NAME = "maktub-v1";
+const CACHE_NAME = "maktub-v2";
 const STATIC_ASSETS = [
   "/",
   "/profiles",
@@ -12,7 +12,7 @@ const STATIC_ASSETS = [
   "/apple-touch-icon.png",
 ];
 
-// Install: cache app shell
+// Install: cache app shell and activate immediately
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
@@ -20,7 +20,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// Activate: clean old caches
+// Activate: clean old caches and take control of all clients
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -34,7 +34,14 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch: network-first for API, cache-first for static
+// Listen for skip waiting message from the app
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
+// Fetch: network-first for pages and non-hashed assets, cache-first for hashed assets
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -59,11 +66,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // For static assets: cache-first with network fallback
-  if (
-    url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|webp|ico|woff2?)$/) ||
-    url.pathname.startsWith("/_next/static/")
-  ) {
+  // For Next.js hashed static assets: cache-first (hashes change on new deploys)
+  if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(
       caches.match(request).then(
         (cached) =>
@@ -78,7 +82,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Everything else: network-first
+  // Everything else (non-hashed assets, API-like routes): network-first
   event.respondWith(
     fetch(request)
       .then((response) => {
