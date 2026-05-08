@@ -197,7 +197,7 @@ function profileToFormData(profile: Profile): FormData {
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const { profile, saveProfile } = useUserProfile();
+  const { profile, loading, saveProfile } = useUserProfile();
   const [saved, setSaved] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -212,6 +212,20 @@ export default function EditProfilePage() {
   const [formData, setFormData] = useState<FormData | null>(null);
 
   const activeFormData = formData ?? formDataFromProfile;
+
+  if (loading) {
+    return (
+      <div className="flex flex-1 flex-col bg-maktub-darker">
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center px-4">
+          <div className="text-center">
+            <div className="w-10 h-10 border-4 border-maktub-green/30 border-t-maktub-green rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-maktub-text-secondary">Loading your profile...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   if (!profile) {
     return (
