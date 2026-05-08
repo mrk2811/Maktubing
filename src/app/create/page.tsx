@@ -244,19 +244,26 @@ export default function CreateProfilePage() {
     };
     try {
       await saveProfile(profile);
-      if (imageFile) {
+    } catch {
+      showToast("Failed to save profile. Please try again.");
+      return;
+    }
+
+    if (imageFile) {
+      try {
         const { getUserId } = await import("@/lib/auth");
         const profileId = `user-${getUserId()}`;
         const imageUrl = await uploadProfileImage(profileId, imageFile);
         await saveProfile({ ...profile, imageUrl });
+      } catch {
+        showToast("Profile saved, but photo upload failed. You can add a photo later from your profile.", "warning");
       }
-      setSubmitted(true);
-      setTimeout(() => {
-        router.push("/profiles");
-      }, 2000);
-    } catch {
-      showToast("Failed to save profile. Please try again.");
     }
+
+    setSubmitted(true);
+    setTimeout(() => {
+      router.push("/profiles");
+    }, 2000);
   };
 
   if (submitted) {
