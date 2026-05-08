@@ -45,6 +45,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 export default function ProfileDetailClient({ id }: { id: string }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showPhoto, setShowPhoto] = useState(false);
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -110,13 +111,17 @@ export default function ProfileDetailClient({ id }: { id: string }) {
         <div className="bg-maktub-panel rounded-2xl border border-maktub-border overflow-hidden">
           <div className="bg-maktub-bubble-out/30 px-6 py-6">
             <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-maktub-green/20 flex items-center justify-center text-maktub-green font-bold text-2xl shrink-0 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => profile.imageUrl && setShowPhoto(true)}
+                className={`w-20 h-20 rounded-full bg-maktub-green/20 flex items-center justify-center text-maktub-green font-bold text-2xl shrink-0 overflow-hidden ${profile.imageUrl ? "cursor-pointer" : "cursor-default"}`}
+              >
                 {profile.imageUrl ? (
                   <Image src={profile.imageUrl} alt={profile.name} width={80} height={80} className="w-full h-full object-cover" />
                 ) : (
                   initials
                 )}
-              </div>
+              </button>
               <div className="flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-2xl font-bold text-maktub-text">{profile.name}</h1>
@@ -200,6 +205,31 @@ export default function ProfileDetailClient({ id }: { id: string }) {
           <ReportButton profileId={profile.id} />
         </div>
       </main>
+
+      {showPhoto && profile.imageUrl && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setShowPhoto(false)}
+        >
+          <button
+            type="button"
+            onClick={() => setShowPhoto(false)}
+            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white hover:bg-white/30 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <Image
+            src={profile.imageUrl}
+            alt={profile.name}
+            width={400}
+            height={400}
+            className="max-w-full max-h-[80vh] rounded-2xl object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
