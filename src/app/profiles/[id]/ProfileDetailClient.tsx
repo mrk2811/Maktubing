@@ -185,7 +185,12 @@ export default function ProfileDetailClient({ id }: { id: string }) {
               {profile.contactPhone && (
                 <div className="mt-4">
                   <a
-                    href={`https://wa.me/${profile.contactPhone.replace(/[\s\-()]/g, "")}`}
+                    href={`https://wa.me/${(() => {
+                      const digits = profile.contactPhone.replace(/[^\d+]/g, "");
+                      if (digits.startsWith("+")) return digits.slice(1);
+                      if (digits.length === 10) return "1" + digits;
+                      return digits;
+                    })()}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#25D366] text-white rounded-xl text-sm font-medium shadow-sm hover:bg-[#1da851] transition-colors"
