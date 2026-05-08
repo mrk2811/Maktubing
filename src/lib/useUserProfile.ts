@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Profile } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
 import { getUserId } from "@/lib/auth";
+import { useAuth } from "@/lib/AuthProvider";
 
 interface DbProfile {
   id: string;
@@ -72,9 +73,11 @@ function toProfile(row: DbProfile): Profile {
 
 export function useUserProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
+  const { userId, isReady } = useAuth();
 
   useEffect(() => {
-    const uid = getUserId();
+    if (!isReady) return;
+    const uid = userId || getUserId();
     const profileId = `user-${uid}`;
     supabase
       .from("profiles")
@@ -84,7 +87,7 @@ export function useUserProfile() {
       .then(({ data }) => {
         if (data) setProfile(toProfile(data as DbProfile));
       });
-  }, []);
+  }, [isReady, userId]);
 
   const saveProfile = useCallback(async (data: Profile) => {
     const uid = getUserId();

@@ -35,6 +35,12 @@ export default function Navbar() {
             <Link href="/create" className={linkClass("/create")}>
               Post Profile
             </Link>
+            <Link href="/interests" className={linkClass("/interests")}>
+              Interests
+            </Link>
+            <Link href="/more" className={linkClass("/more")}>
+              More
+            </Link>
           </nav>
         </div>
       </div>
