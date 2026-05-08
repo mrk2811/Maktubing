@@ -199,6 +199,7 @@ export default function EditProfilePage() {
   const router = useRouter();
   const { profile, saveProfile } = useUserProfile();
   const [saved, setSaved] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [removeImage, setRemoveImage] = useState(false);
   const { showToast } = useToast();
@@ -261,6 +262,7 @@ export default function EditProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     const data = activeFormData;
     const updatedProfile: Profile = {
       ...profile,
@@ -304,6 +306,7 @@ export default function EditProfilePage() {
       await saveProfile(updatedProfile);
     } catch {
       showToast("Failed to save changes. Please try again.");
+      setSubmitting(false);
       return;
     }
 
@@ -619,9 +622,10 @@ export default function EditProfilePage() {
           <div className="mt-8 flex gap-3">
             <button
               type="submit"
-              className="flex-1 bg-maktub-green text-white font-medium py-3 rounded-lg hover:bg-maktub-green/90 transition-colors"
+              disabled={submitting}
+              className="flex-1 bg-maktub-green text-white font-medium py-3 rounded-lg hover:bg-maktub-green/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Save Changes
+              {submitting ? "Saving..." : "Save Changes"}
             </button>
             <Link
               href="/more"

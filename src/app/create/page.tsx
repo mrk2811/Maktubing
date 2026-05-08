@@ -196,6 +196,7 @@ export default function CreateProfilePage() {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { saveProfile } = useUserProfile();
   const { showToast } = useToast();
@@ -208,6 +209,7 @@ export default function CreateProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     const profile: Profile = {
       id: "current-user",
       name: formData.name,
@@ -246,6 +248,7 @@ export default function CreateProfilePage() {
       await saveProfile(profile);
     } catch {
       showToast("Failed to save profile. Please try again.");
+      setSubmitting(false);
       return;
     }
 
@@ -567,9 +570,10 @@ export default function CreateProfilePage() {
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <button
                 type="submit"
-                className="flex-1 h-14 rounded-full bg-maktub-green text-white text-lg font-semibold transition-colors hover:bg-maktub-green-dark shadow-lg"
+                disabled={submitting}
+                className="flex-1 h-14 rounded-full bg-maktub-green text-white text-lg font-semibold transition-colors hover:bg-maktub-green-dark shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Submit Profile
+                {submitting ? "Saving..." : "Submit Profile"}
               </button>
               <button
                 type="button"
