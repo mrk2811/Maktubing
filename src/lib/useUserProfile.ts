@@ -73,20 +73,25 @@ function toProfile(row: DbProfile): Profile {
 
 export function useUserProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
   const { userId, isReady } = useAuth();
 
   useEffect(() => {
     if (!isReady) return;
     const uid = userId || getUserId();
     const profileId = `user-${uid}`;
+    let cancelled = false;
     supabase
       .from("profiles")
       .select("*")
       .eq("id", profileId)
       .single()
       .then(({ data }) => {
+        if (cancelled) return;
         if (data) setProfile(toProfile(data as DbProfile));
+        setLoading(false);
       });
+    return () => { cancelled = true; };
   }, [isReady, userId]);
 
   const saveProfile = useCallback(async (data: Profile) => {
@@ -132,5 +137,5 @@ export function useUserProfile() {
     setProfile(null);
   }, []);
 
-  return { profile, saveProfile, clearProfile };
+  return { profile, loading, saveProfile, clearProfile };
 }
