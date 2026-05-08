@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -32,9 +33,11 @@ export default function InstallPrompt() {
     useState<BeforeInstallPromptEvent | null>(null);
   const [mode, setMode] = useState<PromptMode>("hidden");
   const isStandalone = useIsStandalone();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (isStandalone) return;
+    if (pathname !== "/") return;
     if (typeof sessionStorage !== "undefined" && sessionStorage.getItem("pwa-install-dismissed")) return;
 
     // Android / Chrome: listen for beforeinstallprompt
@@ -58,7 +61,7 @@ export default function InstallPrompt() {
       window.removeEventListener("beforeinstallprompt", handler);
       if (timer) clearTimeout(timer);
     };
-  }, [isStandalone]);
+  }, [isStandalone, pathname]);
 
   const handleInstall = useCallback(async () => {
     if (!deferredPrompt) return;
@@ -76,7 +79,7 @@ export default function InstallPrompt() {
     sessionStorage.setItem("pwa-install-dismissed", "true");
   }, []);
 
-  if (mode === "hidden") return null;
+  if (mode === "hidden" || pathname !== "/") return null;
 
   return (
     <div className="fixed bottom-20 left-4 right-4 z-[90] md:left-auto md:right-4 md:max-w-sm animate-slide-up">
