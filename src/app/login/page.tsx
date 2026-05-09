@@ -46,8 +46,8 @@ export default function LoginPage() {
       setLoading(true);
 
       try {
-        const formatted = phone.startsWith("+") ? phone : `+1${phone.replace(/\D/g, "")}`;
-        await sendCode(formatted);
+        const digits = phone.replace(/\D/g, "");
+        await sendCode(`+1${digits}`);
         setStep("otp");
       } catch (err: unknown) {
         const message =
@@ -55,7 +55,7 @@ export default function LoginPage() {
         if (message.includes("too-many-requests")) {
           setError("Too many attempts. Please try again later.");
         } else if (message.includes("invalid-phone-number")) {
-          setError("Invalid phone number. Please include country code (e.g. +1...)");
+          setError("Invalid phone number. Please enter a valid 10-digit US number.");
         } else {
           setError(message);
         }
@@ -151,19 +151,25 @@ export default function LoginPage() {
                   htmlFor="phone"
                   className="text-sm font-medium text-maktub-text-secondary"
                 >
-                  Phone Number (with country code)
+                  Phone Number
                 </label>
-                <input
-                  id="phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="e.g. +1 347-341-0176"
-                  className="bg-maktub-input text-maktub-text rounded-lg px-4 py-3 border border-maktub-border focus:border-maktub-green focus:outline-none placeholder:text-maktub-text-secondary/50 text-sm"
-                  required
-                />
+                <div className="flex">
+                  <div className="flex items-center gap-1.5 bg-maktub-input border border-maktub-border border-r-0 rounded-l-lg px-3 text-sm text-maktub-text-secondary">
+                    <span>&#127482;&#127480;</span>
+                    <span>+1</span>
+                  </div>
+                  <input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="(555) 123-4567"
+                    className="flex-1 bg-maktub-input text-maktub-text rounded-r-lg px-4 py-3 border border-maktub-border focus:border-maktub-green focus:outline-none placeholder:text-maktub-text-secondary/50 text-sm"
+                    required
+                  />
+                </div>
                 <p className="text-xs text-maktub-text-secondary">
-                  Include your country code (e.g. +1 for US, +44 for UK, +92 for Pakistan)
+                  US numbers only. Enter your 10-digit phone number.
                 </p>
               </div>
 
