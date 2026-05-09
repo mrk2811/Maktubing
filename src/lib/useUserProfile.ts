@@ -74,12 +74,17 @@ function toProfile(row: DbProfile): Profile {
 export function useUserProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const { userId, isReady } = useAuth();
+  const { firebaseUser, isReady } = useAuth();
+
+  const getProfileId = useCallback(() => {
+    if (firebaseUser) return `user-${firebaseUser.uid}`;
+    const uid = getUserId();
+    return `user-${uid}`;
+  }, [firebaseUser]);
 
   useEffect(() => {
     if (!isReady) return;
-    const uid = userId || getUserId();
-    const profileId = `user-${uid}`;
+    const profileId = getProfileId();
     let cancelled = false;
     supabase
       .from("profiles")
@@ -92,11 +97,10 @@ export function useUserProfile() {
         setLoading(false);
       });
     return () => { cancelled = true; };
-  }, [isReady, userId]);
+  }, [isReady, getProfileId]);
 
   const saveProfile = useCallback(async (data: Profile) => {
-    const uid = getUserId();
-    const profileId = `user-${uid}`;
+    const profileId = getProfileId();
     const dbData = {
       id: profileId,
       name: data.name,
@@ -128,14 +132,13 @@ export function useUserProfile() {
       .select()
       .single();
     if (result) setProfile(toProfile(result as DbProfile));
-  }, []);
+  }, [getProfileId]);
 
   const clearProfile = useCallback(async () => {
-    const uid = getUserId();
-    const profileId = `user-${uid}`;
+    const profileId = getProfileId();
     await supabase.from("profiles").delete().eq("id", profileId);
     setProfile(null);
-  }, []);
+  }, [getProfileId]);
 
   return { profile, loading, saveProfile, clearProfile };
 }

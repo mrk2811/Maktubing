@@ -1,5 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import { useAuth } from "@/lib/AuthProvider";
+import { signOut } from "@/lib/auth";
+import { auth as firebaseAuth } from "@/lib/firebase";
+import { signOut as firebaseSignOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 function MenuItem({
   href,
@@ -44,12 +51,30 @@ function MenuItem({
 }
 
 export default function MorePage() {
+  const { isPhoneVerified, firebaseUser } = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    try {
+      await firebaseSignOut(firebaseAuth);
+      await signOut();
+      router.push("/login");
+    } catch {
+      // ignore sign-out errors
+    }
+  };
+
   return (
     <div className="flex flex-1 flex-col bg-maktub-darker">
       <Navbar />
       <main className="flex-1 max-w-lg mx-auto w-full px-4 py-6">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-maktub-text">More</h1>
+          {isPhoneVerified && firebaseUser?.phoneNumber && (
+            <p className="text-sm text-maktub-text-secondary mt-1">
+              Signed in as {firebaseUser.phoneNumber}
+            </p>
+          )}
         </div>
 
         <div className="space-y-3">
@@ -96,27 +121,6 @@ export default function MorePage() {
           />
 
           <MenuItem
-            href="/verify"
-            icon={
-              <svg
-                className="w-5 h-5 text-maktub-green"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                />
-              </svg>
-            }
-            title="Verify Phone Number"
-            description="Verify your contact number to earn a trust badge"
-          />
-
-          <MenuItem
             href="/admin"
             icon={
               <svg
@@ -136,6 +140,56 @@ export default function MorePage() {
             title="Admin Dashboard"
             description="Review and verify submitted profiles"
           />
+
+          {isPhoneVerified ? (
+            <button
+              onClick={handleSignOut}
+              className="w-full flex items-center gap-4 bg-maktub-panel rounded-xl border border-maktub-border p-4 hover:border-red-300 transition-colors"
+            >
+              <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+                <svg
+                  className="w-5 h-5 text-red-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0 text-left">
+                <h3 className="font-medium text-red-600 text-base">Sign Out</h3>
+                <p className="text-sm text-maktub-text-secondary mt-0.5">
+                  Sign out of your account
+                </p>
+              </div>
+            </button>
+          ) : (
+            <MenuItem
+              href="/login"
+              icon={
+                <svg
+                  className="w-5 h-5 text-maktub-green"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                  />
+                </svg>
+              }
+              title="Sign In"
+              description="Sign in with your phone number"
+            />
+          )}
         </div>
       </main>
     </div>
