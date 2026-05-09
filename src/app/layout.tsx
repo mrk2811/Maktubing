@@ -7,6 +7,7 @@ import ServiceWorkerRegistration from "@/components/ServiceWorker";
 import OfflineBanner from "@/components/OfflineBanner";
 import InstallPrompt from "@/components/InstallPrompt";
 import SplashScreen from "@/components/SplashScreen";
+import AuthGate from "@/components/AuthGate";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -69,9 +70,11 @@ export default function RootLayout({
             <ServiceWorkerRegistration />
             <SplashScreen />
             <OfflineBanner />
-            {children}
-            <BottomNav />
-            <InstallPrompt />
+            <AuthGate>
+              {children}
+              <BottomNav />
+              <InstallPrompt />
+            </AuthGate>
           </ToastProvider>
         </AuthProvider>
       </body>
