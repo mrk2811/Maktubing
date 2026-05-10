@@ -1,20 +1,27 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
+import { onAuthStateChanged as onFirebaseAuthStateChanged, User } from "firebase/auth";
+import { auth as firebaseAuth } from "@/lib/firebase";
 import { initAuth, getUserId, onAuthStateChanged } from "@/lib/auth";
 
 interface AuthContextType {
   userId: string | null;
+  firebaseUser: User | null;
   isReady: boolean;
+  isPhoneVerified: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
   userId: null,
+  firebaseUser: null,
   isReady: false,
+  isPhoneVerified: false,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = useState<string | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -35,8 +42,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return unsubscribe;
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = onFirebaseAuthStateChanged(firebaseAuth, (user) => {
+      setFirebaseUser(user);
+    });
+    return unsubscribe;
+  }, []);
+
+  const isPhoneVerified = firebaseUser?.phoneNumber != null;
+
   return (
-    <AuthContext.Provider value={{ userId, isReady }}>
+    <AuthContext.Provider value={{ userId, firebaseUser, isReady, isPhoneVerified }}>
       {children}
     </AuthContext.Provider>
   );
