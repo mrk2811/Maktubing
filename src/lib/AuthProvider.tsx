@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged as onFirebaseAuthStateChanged, User } from "firebase/auth";
 import { auth as firebaseAuth } from "@/lib/firebase";
-import { initAuth, getUserId, onAuthStateChanged } from "@/lib/auth";
+import { initAuth, getUserId, setFirebaseUid, onAuthStateChanged } from "@/lib/auth";
 
 interface AuthContextType {
   userId: string | null;
@@ -45,6 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const unsubscribe = onFirebaseAuthStateChanged(firebaseAuth, (user) => {
       setFirebaseUser(user);
+      setFirebaseUid(user?.uid ?? null);
     });
     return unsubscribe;
   }, []);

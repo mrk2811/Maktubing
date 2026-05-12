@@ -7,8 +7,10 @@
 import { supabase } from "@/lib/supabase";
 
 const AUTH_UID_KEY = "maktub-auth-uid";
+const FIREBASE_UID_KEY = "maktub-firebase-uid";
 
 let cachedUserId: string | null = null;
+let cachedFirebaseUid: string | null = null;
 
 export async function initAuth(): Promise<string> {
   const { data: sessionData } = await supabase.auth.getSession();
@@ -32,7 +34,26 @@ export async function initAuth(): Promise<string> {
   return uid;
 }
 
+export function setFirebaseUid(uid: string | null): void {
+  cachedFirebaseUid = uid;
+  if (typeof window !== "undefined") {
+    if (uid) {
+      localStorage.setItem(FIREBASE_UID_KEY, uid);
+    } else {
+      localStorage.removeItem(FIREBASE_UID_KEY);
+    }
+  }
+}
+
 export function getUserId(): string {
+  if (cachedFirebaseUid) return cachedFirebaseUid;
+  if (typeof window !== "undefined") {
+    const storedFirebase = localStorage.getItem(FIREBASE_UID_KEY);
+    if (storedFirebase) {
+      cachedFirebaseUid = storedFirebase;
+      return storedFirebase;
+    }
+  }
   if (cachedUserId) return cachedUserId;
   if (typeof window === "undefined") return "server";
   const stored = localStorage.getItem(AUTH_UID_KEY);
@@ -53,8 +74,10 @@ export async function linkFirebaseAuth(firebaseIdToken: string): Promise<void> {
 export async function signOut(): Promise<void> {
   await supabase.auth.signOut();
   cachedUserId = null;
+  cachedFirebaseUid = null;
   if (typeof window !== "undefined") {
     localStorage.removeItem(AUTH_UID_KEY);
+    localStorage.removeItem(FIREBASE_UID_KEY);
   }
 }
 
