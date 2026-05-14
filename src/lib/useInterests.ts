@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
+import { getUserId } from "@/lib/auth";
 
 export interface Interest {
   fromProfileId: string;
@@ -27,10 +28,11 @@ function toInterest(row: DbInterest): Interest {
   };
 }
 
-async function loadInterests(): Promise<Interest[]> {
+async function loadInterests(profileId: string): Promise<Interest[]> {
   const { data } = await supabase
     .from("interests")
     .select("*")
+    .or(`from_profile_id.eq.${profileId},to_profile_id.eq.${profileId}`)
     .order("created_at", { ascending: false });
   return data ? (data as DbInterest[]).map(toInterest) : [];
 }
@@ -40,7 +42,8 @@ export function useInterests() {
 
   useEffect(() => {
     let ignore = false;
-    loadInterests().then((data) => {
+    const profileId = `user-${getUserId()}`;
+    loadInterests(profileId).then((data) => {
       if (!ignore) setInterests(data);
     });
     return () => { ignore = true; };

@@ -211,7 +211,7 @@ export default function CreateProfilePage() {
     e.preventDefault();
     setSubmitting(true);
     const profile: Profile = {
-      id: "current-user",
+      id: "",
       name: formData.name,
       gender: formData.gender as "Male" | "Female",
       age: parseInt(formData.age) || 0,

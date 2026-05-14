@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useReports, ReportReason } from "@/lib/useReports";
+import { useUserProfile } from "@/lib/useUserProfile";
 import { useToast } from "@/components/Toast";
-
-const CURRENT_USER_ID = "current-user";
 
 const REPORT_REASONS: { value: ReportReason; label: string }[] = [
   { value: "fake_profile", label: "Fake Profile" },
@@ -19,16 +18,18 @@ export default function ReportButton({ profileId }: { profileId: string }) {
   const [details, setDetails] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const { submitReport, hasReported } = useReports();
+  const { profile: myProfile } = useUserProfile();
   const { showToast } = useToast();
 
-  const alreadyReported = hasReported(profileId, CURRENT_USER_ID);
+  const myProfileId = myProfile?.id ?? "anonymous";
+  const alreadyReported = hasReported(profileId, myProfileId);
 
   const handleSubmit = async () => {
     if (!selectedReason) return;
     try {
       const success = await submitReport({
         profileId,
-        reporterId: CURRENT_USER_ID,
+        reporterId: myProfileId,
         reason: selectedReason,
         details,
       });
