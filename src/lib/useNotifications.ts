@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
+import { getUserId } from "@/lib/auth";
 
 export interface Notification {
   id: string;
@@ -37,9 +38,11 @@ export function useNotifications() {
 
   useEffect(() => {
     let ignore = false;
+    const profileId = `user-${getUserId()}`;
     supabase
       .from("notifications")
       .select("*")
+      .eq("to_profile_id", profileId)
       .order("created_at", { ascending: false })
       .then(({ data }) => {
         if (!ignore && data) setNotifications((data as DbNotification[]).map(toNotification));
@@ -68,9 +71,11 @@ export function useNotifications() {
   );
 
   const markAllRead = useCallback(async () => {
+    const profileId = `user-${getUserId()}`;
     await supabase
       .from("notifications")
       .update({ read: true })
+      .eq("to_profile_id", profileId)
       .eq("read", false);
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   }, []);

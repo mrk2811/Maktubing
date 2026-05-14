@@ -2,9 +2,8 @@
 
 import { useInterests } from "@/lib/useInterests";
 import { useNotifications } from "@/lib/useNotifications";
+import { useUserProfile } from "@/lib/useUserProfile";
 import { useToast } from "@/components/Toast";
-
-const CURRENT_USER_ID = "current-user";
 
 export default function InterestButton({
   profileId,
@@ -15,18 +14,26 @@ export default function InterestButton({
 }) {
   const { sendInterest, getInterestStatus } = useInterests();
   const { addNotification } = useNotifications();
+  const { profile: myProfile, loading: profileLoading } = useUserProfile();
   const { showToast } = useToast();
-  const status = getInterestStatus(CURRENT_USER_ID, profileId);
+
+  const myProfileId = myProfile?.id ?? null;
+  const status = myProfileId ? getInterestStatus(myProfileId, profileId) : null;
+  const isOwnProfile = myProfileId === profileId;
 
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!myProfileId) {
+      showToast("Create a profile first before sending interest.");
+      return;
+    }
     if (!status) {
       try {
-        await sendInterest(CURRENT_USER_ID, profileId);
+        await sendInterest(myProfileId, profileId);
         await addNotification({
           type: "interest_received",
-          fromProfileId: CURRENT_USER_ID,
+          fromProfileId: myProfileId,
           toProfileId: profileId,
         });
       } catch {
@@ -82,6 +89,29 @@ export default function InterestButton({
         </svg>
         Interest Sent
       </span>
+    );
+  }
+
+  if (isOwnProfile) {
+    return null;
+  }
+
+  if (!myProfileId && !profileLoading) {
+    return (
+      <button
+        onClick={handleClick}
+        className={`${sizeClasses} inline-flex items-center gap-1.5 rounded-full bg-gray-300 text-gray-500 font-medium cursor-not-allowed`}
+      >
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+          />
+        </svg>
+        Create Profile First
+      </button>
     );
   }
 

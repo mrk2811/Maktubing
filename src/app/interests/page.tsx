@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import { useToast } from "@/components/Toast";
 import { InterestListSkeleton } from "@/components/Skeleton";
@@ -9,8 +10,7 @@ import { Profile } from "@/lib/types";
 import { fetchProfiles } from "@/lib/db";
 import { useInterests } from "@/lib/useInterests";
 import { useNotifications } from "@/lib/useNotifications";
-
-const CURRENT_USER_ID = "current-user";
+import { useUserProfile } from "@/lib/useUserProfile";
 
 type Tab = "sent" | "received";
 
@@ -20,7 +20,10 @@ export default function InterestsPage() {
   const [loading, setLoading] = useState(true);
   const { sentInterests, receivedInterests, updateStatus } = useInterests();
   const { addNotification } = useNotifications();
+  const { profile: myProfile, loading: profileLoading } = useUserProfile();
   const { showToast } = useToast();
+
+  const myProfileId = myProfile?.id ?? null;
 
   useEffect(() => {
     let ignore = false;
@@ -64,8 +67,14 @@ export default function InterestsPage() {
     [updateStatus, addNotification]
   );
 
-  const sent = sentInterests(CURRENT_USER_ID);
-  const received = receivedInterests(CURRENT_USER_ID);
+  const sent = useMemo(
+    () => myProfileId ? sentInterests(myProfileId) : [],
+    [myProfileId, sentInterests]
+  );
+  const received = useMemo(
+    () => myProfileId ? receivedInterests(myProfileId) : [],
+    [myProfileId, receivedInterests]
+  );
 
   const sentProfiles = useMemo(
     () =>
@@ -95,6 +104,17 @@ export default function InterestsPage() {
             Track interest sent and received
           </p>
         </div>
+
+        {!profileLoading && !myProfileId && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+            <p className="text-sm text-amber-800 font-medium">
+              Create a profile to send and receive interests
+            </p>
+            <Link href="/create" className="text-sm text-maktub-green font-medium mt-1 inline-block">
+              Post Profile &rarr;
+            </Link>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-1 bg-maktub-input rounded-lg p-1 mb-6">
@@ -134,9 +154,7 @@ export default function InterestsPage() {
                     className="block"
                   >
                     <div className="bg-maktub-panel rounded-xl border border-maktub-border p-4 flex items-center gap-4 hover:border-maktub-green/50 transition-colors">
-                      <div className="w-12 h-12 rounded-full bg-maktub-green/20 flex items-center justify-center text-maktub-green font-bold shrink-0">
-                        {profile!.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
-                      </div>
+                      <ProfileAvatar profile={profile!} />
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-maktub-text">
                           {profile!.name}
@@ -177,15 +195,16 @@ export default function InterestsPage() {
                       href={`/profiles/${profile!.id}`}
                       className="flex items-center gap-4 flex-1 min-w-0"
                     >
-                      <div className="w-12 h-12 rounded-full bg-maktub-green/20 flex items-center justify-center text-maktub-green font-bold shrink-0">
-                        {profile!.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
-                      </div>
+                      <ProfileAvatar profile={profile!} />
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-maktub-text">
                           {profile!.name}
                         </h3>
                         <p className="text-sm text-maktub-text-secondary">
                           {profile!.age} yrs &middot; {profile!.gender} &middot; {profile!.residence}
+                        </p>
+                        <p className="text-xs text-maktub-green mt-1">
+                          View Profile &rarr;
                         </p>
                       </div>
                     </Link>
@@ -223,6 +242,26 @@ export default function InterestsPage() {
           </div>
         )}
       </main>
+    </div>
+  );
+}
+
+function ProfileAvatar({ profile }: { profile: Profile }) {
+  const initials = profile.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+  if (profile.imageUrl) {
+    return (
+      <Image
+        src={profile.imageUrl}
+        alt={profile.name}
+        width={48}
+        height={48}
+        className="w-12 h-12 rounded-full object-cover shrink-0"
+      />
+    );
+  }
+  return (
+    <div className="w-12 h-12 rounded-full bg-maktub-green/20 flex items-center justify-center text-maktub-green font-bold shrink-0">
+      {initials}
     </div>
   );
 }
